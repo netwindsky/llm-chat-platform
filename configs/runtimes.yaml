@@ -1,0 +1,70 @@
+# 推理运行时配置文件
+
+runtimes:
+  llama:
+    name: llama.cpp
+    path: llama/llama-bin/llama-server.exe
+    cli_path: llama/llama-bin/llama-cli.exe
+    available: true
+    description: 高性能 CPU/GPU 推理框架，支持 GGUF 格式
+    supports:
+      - gguf
+      - ggml
+    features:
+      - flash_attention
+      - kontinuate
+      - server
+      - cli
+
+  sglang:
+    name: SGLang
+    path: runtimes/sglang
+    available: false
+    description: 高吞吐量推理框架，优化多轮对话
+    requirements:
+      - Python 3.10+
+      - CUDA 12.1+
+    supports:
+      - hf
+      - awq
+      - gptq
+    features:
+      - radix_attention
+      - flashinfer
+
+  vllm:
+    name: vLLM
+    path: runtimes/vllm
+    available: false
+    description: 高并发推理框架，PagedAttention
+    requirements:
+      - Python 3.9+
+      - CUDA 12.1+
+    supports:
+      - hf
+      - awq
+      - gptq
+    features:
+      - paged_attention
+      - continuous_batching
+
+# 默认设置
+defaults:
+  runtime: llama
+  gpu_layers: 99
+  context_size: 32768
+  temperature: 0.7
+  top_p: 0.8
+  top_k: 20
+  max_tokens: 4096
+
+# 显存管理
+memory:
+  gpu_memory_fraction: 0.95
+  enable_cpu_offload: false
+  max_cpu_memory: 16GB
+  kv_cache_size: 4096
+
+# 模型加载管理
+model_loading:
+  max_loaded_models: 1  # 同时只加载 1 个模型，切换时自动卸载

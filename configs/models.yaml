@@ -1,0 +1,481 @@
+# 模型注册表配置文件
+# 所有模型必须在此注册才能被平台使用
+
+models:
+  # ============ 语言模型 - Qwen3.5 ============
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl
+    name: Qwen3.5-35B-A3B (UD-Q4 XL)
+    path: models/language-models/Qwen3.5/Qwen3.5-35B-A3B-UD-Q4_K_XL.gguf
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - chat
+      - reasoning
+      - chinese
+    description: 阿里巴巴 Qwen3.5 系列旗舰模型，支持 128K 上下文
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-1
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) 备份
+    path: models/language-models/Qwen3.5/Qwen3.5-35B-A3B-UD-Q4_K_XL_1.gguf
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - chat
+      - reasoning
+      - chinese
+    description: Qwen3.5 35B 备份版本
+
+  - id: qwen3.5-27b-ud-q4
+    name: Qwen3.5-27B (UD-Q4)
+    path: models/language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - chat
+      - general
+    description: Qwen3.5 中等规模模型
+
+  # ============ 语言模型 - Qwen3 ============
+
+  - id: qwen3-30b-a3b-instruct
+    name: Qwen3-30B-A3B-Instruct
+    path: models/language-models/Qwen3/Qwen3-30B-A3B-Instruct-2507-UD-Q4_K_XL.gguf
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - instruct
+      - chat
+    description: Qwen3 指令微调版本
+
+  - id: qwen3-30b-a3b-thinking
+    name: Qwen3-30B-A3B-Thinking
+    path: models/language-models/Qwen3/Qwen3-30B-A3B-Thinking-2507-UD-Q4_K_XL.gguf
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1.0
+    default_top_p: 0.95
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: Qwen3 推理强化版本，支持深度思考
+
+  # ============ 语言模型 - GLM ============
+
+  - id: glm-4.7-flash-ud-q4
+    name: GLM-4.7-Flash (UD-Q4)
+    path: models/language-models/GLM/GLM-4.7-Flash-UD-Q4_K_XL.gguf
+    type: language-model
+    category: GLM
+    format: gguf
+    size: 4.7B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    tags:
+      - chat
+      - fast
+    description: 智谱 GLM-4 快速版本
+
+  - id: glm-4.7-flash-q5
+    name: GLM-4.7-Flash (Q5)
+    path: models/language-models/GLM/GLM-4.7-Flash-Q5_K_M.gguf
+    type: language-model
+    category: GLM
+    format: gguf
+    size: 4.7B
+    quantization: Q5_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    tags:
+      - chat
+      - fast
+    description: 智谱 GLM-4 快速版本 Q5 量化
+
+  # ============ 语言模型 - ERNIE ============
+
+  - id: ernie-4.5-21b-thinking
+    name: ERNIE-4.5-21B-Thinking
+    path: models/language-models/ERNIE/ERNIE-4.5-21B-A3B-Thinking-UD-Q4_K_XL.gguf
+    type: reasoning-model
+    category: ERNIE
+    format: gguf
+    size: 21B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1.0
+    default_top_p: 0.95
+    tags:
+      - reasoning
+      - thinking
+      - chinese
+    description: 百度文心ERNIE 4.5 推理版本
+
+  # ============ 代码模型 ============
+
+  - id: qwen-coder-30b-a3b-instruct
+    name: Qwen-Coder-30B-A3B-Instruct
+    path: models/code-models/Qwen-Coder/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf
+    type: code-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.6
+    default_top_p: 0.95
+    tags:
+      - coding
+      - programming
+      - developer
+    description: 阿里巴巴代码专用模型
+
+  # ============ 视觉模型 - GLM ============
+
+  - id: glm-4.6v-flash
+    name: GLM-4.6V-Flash
+    path: models/vision-language-models/GLM/GLM-4.6V-Flash-UD-Q4_K_XL.gguf
+    mmproj: models/vision-language-models/mmproj/GLM-4.6V-Flash-mmproj-F16_3.gguf
+    type: vision-language-model
+    category: GLM
+    format: gguf
+    size: 4.6B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    tags:
+      - vision
+      - multimodal
+      - fast
+    description: 智谱 GLM-4V 快速版本
+
+  - id: glm-4.1v-9b-thinking
+    name: GLM-4.1V-9B-Thinking
+    path: models/vision-language-models/GLM/GLM-4.1V-9B-Thinking-Q5_K_M.gguf
+    type: vision-language-model
+    category: GLM
+    format: gguf
+    size: 9B
+    quantization: Q5_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    tags:
+      - vision
+      - multimodal
+      - thinking
+    description: 智谱 GLM-4V 思考版本
+
+  # ============ 视觉模型 - InternVL ============
+
+  - id: internvl3-8b-q5
+    name: InternVL3-8B (Q5)
+    path: models/vision-language-models/InternVL/InternVL3-8B-Q5_K_M.gguf
+    type: vision-language-model
+    category: InternVL
+    format: gguf
+    size: 8B
+    quantization: Q5_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    tags:
+      - vision
+      - multimodal
+      - chinese
+    description: 智谱 InternVL3 视觉模型
+
+  # ============ 语言模型 - Qwen3.5 (新增) ============
+
+  - id: qwen3.5-9b-ud-q4
+    name: Qwen3.5-9B (UD-Q4)
+    path: models/language-models/Qwen3.5/Qwen3.5-9B-UD-Q4_K_XL.gguf
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 9B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - chat
+      - general
+      - chinese
+    description: Qwen3.5 小型模型
+
+  # ============ 语言模型 - DeepSeek ============
+
+  - id: deepseek-r1-0528-qwen3-8b-ud-q4-xl
+    name: DeepSeek-R1-0528-Qwen3-8B (UD-Q4 XL)
+    path: models/language-models/DeepSeek/DeepSeek-R1-0528-Qwen3-8B-UD-Q4_K_XL.gguf
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1.0
+    default_top_p: 0.95
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 思考模型 Qwen3 8B
+
+  - id: deepseek-r1-distill-llama-8b-ud-q4-xl
+    name: DeepSeek-R1-Distill-Llama-8B (UD-Q4 XL)
+    path: models/language-models/DeepSeek/DeepSeek-R1-Distill-Llama-8B-UD-Q4_K_XL.gguf
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1.0
+    default_top_p: 0.95
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 蒸馏版 Llama 8B
+
+  - id: deepseek-r1-distill-qwen-14b-q4-m
+    name: DeepSeek-R1-Distill-Qwen-14B (Q4 M)
+    path: models/language-models/DeepSeek/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 14B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 1.0
+    default_top_p: 0.95
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 蒸馏版 Qwen 14B
+
+  - id: deepseek-r1-distill-qwen-32b-q4-m
+    name: DeepSeek-R1-Distill-Qwen-32B (Q4 M)
+    path: models/language-models/DeepSeek/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 32B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 1.0
+    default_top_p: 0.95
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 蒸馏版 Qwen 32B
+
+  # ============ 语言模型 - Gemma ============
+
+  - id: gemma-3-12b-it-ud-q4-xl
+    name: Gemma-3-12B-IT (UD-Q4 XL)
+    path: models/language-models/Gemma/gemma-3-12b-it-UD-Q4_K_XL.gguf
+    type: vision-language-model
+    category: Gemma
+    format: gguf
+    size: 12B
+    quantization: Q4_K_XL
+    mmproj: models/vision-language-models/mmproj/gemma-3-12b-it-mmproj-F16.gguf
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - vision
+      - multimodal
+      - chat
+    description: Google Gemma 3 12B 指令微调视觉模型
+
+  - id: gemma-3-27b-it-ud-q4-xl
+    name: Gemma-3-27B-IT (UD-Q4 XL)
+    path: models/language-models/Gemma/gemma-3-27b-it-UD-Q4_K_XL.gguf
+    type: vision-language-model
+    category: Gemma
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    mmproj: models/vision-language-models/mmproj/gemma-3-27b-it-mmproj-F16.gguf
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - vision
+      - multimodal
+      - chat
+    description: Google Gemma 3 27B 指令微调视觉模型
+
+  # ============ 语言模型 - GLM (新增) ============
+
+  - id: glm-4-32b-0414-ud-q4-xl
+    name: GLM-4-32B-0414 (UD-Q4 XL)
+    path: models/language-models/GLM/GLM-4-32B-0414-UD-Q4_K_XL.gguf
+    type: language-model
+    category: GLM
+    format: gguf
+    size: 32B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - chat
+      - general
+      - chinese
+    description: 智谱 GLM-4 32B 模型
+
+  # ============ 语言模型 - HY ============
+
+  - id: hy-mt1.5-1.8b-q4-m
+    name: HY-MT1.5-1.8B (Q4 M)
+    path: models/language-models/HY/HY-MT1.5-1.8B-Q4_K_M.gguf
+    type: language-model
+    category: HY
+    format: gguf
+    size: 1.8B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - translation
+      - fast
+      - chinese
+    description: HY MT1.5 小型翻译模型
+
+  - id: hy-mt1.5-7b-q4-m
+    name: HY-MT1.5-7B (Q4 M)
+    path: models/language-models/HY/HY-MT1.5-7B-Q4_K_M.gguf
+    type: language-model
+    category: HY
+    format: gguf
+    size: 7B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - translation
+      - fast
+      - chinese
+    description: HY MT1.5 中型翻译模型
+
+  # ============ 语言模型 - Phi ============
+
+  - id: phi-4-reasoning-plus-ud-q4-xl
+    name: Phi-4-Reasoning-Plus (UD-Q4 XL)
+    path: models/language-models/Phi/Phi-4-reasoning-plus-UD-Q4_K_XL.gguf
+    type: reasoning-model
+    category: Phi
+    format: gguf
+    size: 14B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1.0
+    default_top_p: 0.95
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: Microsoft Phi-4 推理增强模型
+
+  # ============ 代码模型 (新增) ============
+
+  - id: qwen-coder-30b-a3b-instruct-1m
+    name: Qwen-Coder-30B-A3B-Instruct-1M
+    path: models/code-models/Qwen-Coder/Qwen3-Coder-30B-A3B-Instruct-1M-UD-Q4_K_XL.gguf
+    type: code-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 1048576
+    default_temp: 0.6
+    default_top_p: 0.95
+    tags:
+      - coding
+      - programming
+      - developer
+      - long-context
+    description: 阿里巴巴代码专用模型 1M 上下文
+
+# ============ 模型类型定义 ============
+model_types:
+  language-model:
+    icon: "💬"
+    color: "#3b82f6"
+    description: 大语言模型
+  vision-language-model:
+    icon: "👁️"
+    color: "#8b5cf6"
+    description: 视觉语言模型
+  code-model:
+    icon: "💻"
+    color: "#10b981"
+    description: 代码专用模型
+  reasoning-model:
+    icon: "🧠"
+    color: "#f59e0b"
+    description: 推理强化模型
+  embedding-model:
+    icon: "📊"
+    color: "#ec4899"
+    description: 嵌入向量模型

@@ -1,0 +1,49 @@
+# 模型文件
+models/
+*.gguf
+*.ggml
+*.bin
+
+# 运行时环境
+runtimes/
+llama/
+KTransFormers/
+
+# Python 虚拟环境
+venv/
+env/
+.venv/
+
+# Node.js
+node_modules/
+dist/
+dist-ssr/
+
+# 日志
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Windows
+*.bat
+*.exe

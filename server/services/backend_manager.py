@@ -1,0 +1,140 @@
+import asyncio
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+from ..backends.backend_factory import BackendFactory
+from ..core.backend import ChatMessage, InferenceBackend
+
+
+class BackendManager:
+    """后端管理器"""
+    
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self._loaded_models: Dict[str, InferenceBackend] = {}
+        self._current_model: Optional[str] = None
+        self._lock = asyncio.Lock()
+    
+    async def load_model(self, model_id: str, model_path: str, model_config: Dict[str, Any]) -> bool:
+        """加载模型"""
+        print(f"load_model: starting for {model_id}")
+        
+        # 先检查是否已加载（不需要锁）
+        if model_id in self._loaded_models:
+            print(f"load_model: already loaded {model_id}")
+            return True
+        
+        # 先确定需要卸载哪些模型（在锁内）
+        async with self._lock:
+            models_to_unload = []
+            if self._current_model and self._current_model != model_id:
+                models_to_unload.append(self._current_model)
+            
+            # 检查是否已达到最大加载数量
+            max_models = self.config.get("model_loading", {}).get("max_loaded_models", 1)
+            if len(self._loaded_models) >= max_models and model_id not in self._loaded_models:
+                oldest_model = next(iter(self._loaded_models))
+                if oldest_model not in models_to_unload:
+                    models_to_unload.append(oldest_model)
+        
+        # 先卸载旧模型（在锁外，避免死锁）
+        for model_to_unload in models_to_unload:
+            print(f"load_model: unloading {model_to_unload} first")
+            await self._unload_model_no_lock(model_to_unload)
+        
+        # 创建后端实例（在锁外）
+        backend_type = model_config.get("backend", "llama")
+        model_type = model_config.get("type", "language-model")
+        print(f"load_model: model_config type={model_type}, backend={backend_type}")
+        backend_config = {
+            "server_path": f"runtimes/{backend_type}/bin/{backend_type}-server.exe"
+        }
+        print(f"load_model: creating backend for {model_id}")
+        backend = BackendFactory.create(backend_type, backend_config)
+        
+        # 初始化模型（在锁外，耗时操作）
+        print(f"load_model: initializing backend for {model_id} with type={model_type}")
+        success = await backend.initialize(model_path, model_config)
+        print(f"load_model: initialization {'success' if success else 'failed'} for {model_id}")
+        
+        # 注册到字典
+        async with self._lock:
+            if success:
+                self._loaded_models[model_id] = backend
+                self._current_model = model_id
+        
+        return success
+    
+    async def _unload_model_no_lock(self, model_id: str) -> bool:
+        """卸载模型（内部方法，不获取锁）"""
+        # 直接操作字典，不再次获取锁
+        if model_id in self._loaded_models:
+            backend = self._loaded_models[model_id]
+            await backend.shutdown()
+            del self._loaded_models[model_id]
+            
+            if self._current_model == model_id:
+                self._current_model = next(iter(self._loaded_models)) if self._loaded_models else None
+            
+            return True
+        return False
+    
+    async def unload_model(self, model_id: str) -> bool:
+        """卸载模型"""
+        async with self._lock:
+            if model_id not in self._loaded_models:
+                return True
+            
+            backend = self._loaded_models[model_id]
+            await backend.shutdown()
+            
+            del self._loaded_models[model_id]
+            
+            if self._current_model == model_id:
+                self._current_model = next(iter(self._loaded_models)) if self._loaded_models else None
+            
+            return True
+    
+    async def chat(self, model_id: str, messages: List[ChatMessage], config: Dict[str, Any]):
+        """对话生成"""
+        print(f"backend_manager.chat: acquiring lock for {model_id}")
+        async with self._lock:
+            print(f"backend_manager.chat: lock acquired for {model_id}")
+            if model_id not in self._loaded_models:
+                raise ValueError(f"Model not loaded: {model_id}")
+            
+            backend = self._loaded_models[model_id]
+            print(f"backend_manager.chat: calling backend.chat for {model_id}")
+            result = await backend.chat(messages, config)
+            print(f"backend_manager.chat: got result from backend")
+            return result
+    
+    async def chat_stream(self, model_id: str, messages: List[ChatMessage], config: Dict[str, Any]):
+        """流式对话生成"""
+        async with self._lock:
+            if model_id not in self._loaded_models:
+                raise ValueError(f"Model not loaded: {model_id}")
+            
+            backend = self._loaded_models[model_id]
+            async for chunk in backend.chat_stream(messages, config):
+                yield chunk
+    
+    def get_loaded_models(self) -> List[str]:
+        """获取已加载的模型列表"""
+        return list(self._loaded_models.keys())
+    
+    def get_current_model(self) -> Optional[str]:
+        """获取当前模型"""
+        return self._current_model
+    
+    async def set_current_model(self, model_id: str) -> bool:
+        """设置当前模型"""
+        async with self._lock:
+            if model_id not in self._loaded_models:
+                return False
+            self._current_model = model_id
+            return True
+    
+    async def shutdown(self):
+        """关闭所有模型"""
+        for model_id in list(self._loaded_models.keys()):
+            await self.unload_model(model_id)
