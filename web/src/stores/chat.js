@@ -108,11 +108,14 @@ export const useChatStore = defineStore('chat', () => {
         const endTime = Date.now()
         console.log(`Stream completed: ${chunkCount} chunks, ${(endTime - startTime) / 1000}s`)
         
-        // 更新统计（流式模式下没有准确的 token 统计）
+        // 流式模式下估算 token 数量（中文约 1.5 字符/token，英文约 4 字符/token）
+        const estimatedCompletionTokens = Math.ceil(fullContent.length / 3)
+        const estimatedPromptTokens = Math.ceil(userMessages.reduce((sum, m) => sum + m.content.length, 0) / 3)
+        
         stats.value = {
-          promptTokens: 0,
-          completionTokens: 0,
-          totalTokens: 0,
+          promptTokens: estimatedPromptTokens,
+          completionTokens: estimatedCompletionTokens,
+          totalTokens: estimatedPromptTokens + estimatedCompletionTokens,
           speed: fullContent.length / ((endTime - startTime) / 1000),
           responseTime: (endTime - startTime) / 1000
         }

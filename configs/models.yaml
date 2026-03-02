@@ -23,7 +23,7 @@ models:
     description: 阿里巴巴 Qwen3.5 系列旗舰模型，支持 128K 上下文
 
   - id: qwen3.5-35b-a3b-ud-q4-xl-1
-    name: Qwen3.5-35B-A3B (UD-Q4 XL) 备份
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版
     path: models/language-models/Qwen3.5/Qwen3.5-35B-A3B-UD-Q4_K_XL_1.gguf
     type: language-model
     category: Qwen
@@ -38,7 +38,7 @@ models:
       - chat
       - reasoning
       - chinese
-    description: Qwen3.5 35B 备份版本
+    description: Qwen3.5 35B 更新版
 
   - id: qwen3.5-27b-ud-q4
     name: Qwen3.5-27B (UD-Q4)

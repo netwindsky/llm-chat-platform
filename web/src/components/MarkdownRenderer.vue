@@ -59,6 +59,9 @@ const sanitizedHtml = computed(() => {
   --md-accent-hover: #6366f1;
   --md-code-pink: #f472b6;
   --md-code-cyan: #67e8f9;
+  --md-strong: var(--md-strong, #fbbf24);
+  --md-em: var(--md-em, #60a5fa);
+  --md-del: var(--md-del, #f87171);
   
   line-height: 1.6;
   color: var(--md-text-primary);
@@ -297,16 +300,19 @@ const sanitizedHtml = computed(() => {
 }
 
 .markdown-body :deep(strong) {
-  color: var(--md-text-primary);
-  font-weight: 600;
+  color: var(--md-strong);
+  font-weight: 700;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--md-strong) 30%, transparent);
 }
 
 .markdown-body :deep(em) {
-  color: var(--md-text-secondary);
+  color: var(--md-em);
+  font-style: italic;
 }
 
 .markdown-body :deep(del) {
-  color: var(--md-text-tertiary);
+  color: var(--md-del);
+  text-decoration: line-through;
 }
 
 .markdown-body :deep(input[type="checkbox"]) {

@@ -52,6 +52,30 @@
       <el-card class="mt-4">
         <template #header>
           <div class="card-header">
+            <span>Markdown 主题</span>
+          </div>
+        </template>
+        
+        <div class="theme-grid">
+          <div 
+            v-for="theme in themes" 
+            :key="theme.id"
+            :class="['theme-item', { active: currentTheme === theme.id }]"
+            @click="setTheme(theme.id)"
+          >
+            <div class="theme-preview">
+              <span :style="{ color: theme.strong }">★</span>
+              <span :style="{ color: theme.em }">☆</span>
+              <span :style="{ color: theme.del }">✕</span>
+            </div>
+            <span class="theme-name">{{ theme.name }}</span>
+          </div>
+        </div>
+      </el-card>
+      
+      <el-card class="mt-4">
+        <template #header>
+          <div class="card-header">
             <span>关于</span>
           </div>
         </template>
@@ -69,6 +93,12 @@
 <script setup>
 import { ref } from 'vue'
 import { Back } from '@element-plus/icons-vue'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
+const themes = themeStore.getThemes()
+const currentTheme = themeStore.currentTheme
+const setTheme = themeStore.setTheme
 
 const settings = ref({
   gpuLayers: 99,
@@ -108,5 +138,44 @@ const settings = ref({
 
 .card-header {
   font-weight: bold;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.theme-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border: 2px solid #e4e7ed;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #409eff;
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    border-color: #409eff;
+    background: #ecf5ff;
+  }
+}
+
+.theme-preview {
+  display: flex;
+  gap: 8px;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.theme-name {
+  font-size: 12px;
+  color: #606266;
 }
 </style>

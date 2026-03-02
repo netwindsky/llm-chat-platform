@@ -72,10 +72,13 @@ class ChatChunk:
     created: int = 0
     model: str = ""
     choices: List[Dict[str, Any]] = None
+    usage: Dict[str, int] = None
     
     def __post_init__(self):
         if self.choices is None:
             self.choices = []
+        if self.usage is None:
+            self.usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
 
 class InferenceBackend(ABC):
