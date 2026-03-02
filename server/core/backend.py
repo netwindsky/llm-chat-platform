@@ -34,7 +34,7 @@ class ModelInfo:
 @dataclass
 class ChatMessage:
     role: str
-    content: str
+    content: Any  # 支持字符串或多模态格式
 
 
 @dataclass

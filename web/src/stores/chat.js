@@ -18,12 +18,13 @@ export const useChatStore = defineStore('chat', () => {
     responseTime: 0
   })
 
-  // 添加消息
-  function addMessage(role, content, thinking = '') {
+  // 添加消息（支持图片）
+  function addMessage(role, content, thinking = '', images = []) {
     messages.value.push({
       role,
       content,
       thinking,
+      images,
       timestamp: Date.now()
     })
   }
@@ -48,19 +49,43 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  // 发送消息（支持流式和非流式）
+  // 发送消息（支持流式和非流式，支持图片）
   async function sendMessage(modelId, content, config = {}) {
     console.log('sendMessage called:', modelId, content, config)
     loading.value = true
     error.value = null
     
-    // 添加用户消息
-    addMessage('user', content)
+    // 构建用户消息内容（支持图片）
+    let userContent = content
+    if (config.images && config.images.length > 0) {
+      // 多模态格式：OpenAI vision 格式
+      userContent = [
+        { type: 'text', text: content || '请描述这张图片' }
+      ]
+      for (const imageBase64 of config.images) {
+        userContent.push({
+          type: 'image_url',
+          image_url: {
+            url: `data:image/jpeg;base64,${imageBase64}`
+          }
+        })
+      }
+    }
     
-    const userMessages = messages.value.map(m => ({
+    // 添加用户消息（保存图片预览）
+    addMessage('user', content, '', config.images || [])
+    
+    // 构建消息历史
+    const userMessages = messages.value.slice(0, -1).map(m => ({
       role: m.role,
       content: m.content
     }))
+    
+    // 添加当前消息
+    userMessages.push({
+      role: 'user',
+      content: userContent
+    })
     
     const useStream = config.stream !== false  // 默认使用流式
     

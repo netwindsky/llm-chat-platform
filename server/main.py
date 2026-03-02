@@ -2,8 +2,10 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
-# 添加项目根目录到路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(PROJECT_ROOT)
+
+sys.path.insert(0, PROJECT_ROOT)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +13,7 @@ import uvicorn
 
 from server.core.manager import ModelManager
 from server.services.backend_manager import BackendManager
-from server.api.v1 import models, chat
+from server.api.v1 import models, chat, openai
 
 
 # 全局变量
@@ -28,7 +30,8 @@ async def lifespan(app: FastAPI):
     print("Initializing LLM Platform...")
     
     # 初始化模型管理器
-    model_manager = ModelManager("configs/models.yaml")
+    config_path = "configs/models.yaml"
+    model_manager = ModelManager(config_path)
     print(f"Loaded {len(model_manager.models)} models")
     
     # 初始化后端管理器
@@ -41,6 +44,8 @@ async def lifespan(app: FastAPI):
     # 注入到 API 路由
     models.set_managers(model_manager, backend_manager)
     chat.set_backend_manager(backend_manager)
+    chat.set_model_manager(model_manager)
+    openai.set_managers(backend_manager, model_manager)
     
     print("LLM Platform initialized successfully!")
     
@@ -72,6 +77,8 @@ app.add_middleware(
 # 注册路由
 app.include_router(models.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
+# OpenAI 兼容路由 (标准 /v1 路径)
+app.include_router(openai.router, prefix="/v1")
 
 
 @app.get("/")

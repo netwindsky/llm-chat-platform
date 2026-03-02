@@ -20,11 +20,17 @@ class ModelConfig:
     max_context: int = 32768
     default_temp: float = 0.7
     default_top_p: float = 0.8
+    default_top_k: int = 20
+    default_max_tokens: int = 4096
+    enable_thinking: Optional[bool] = None
+    parallel: int = 1
+    batch_size: int = 512
     tags: List[str] = field(default_factory=list)
     description: str = ""
     status: str = "unloaded"
     memory_usage: Optional[float] = None
     file_exists: bool = False
+    mmproj: Optional[str] = None
 
 
 @dataclass
@@ -40,9 +46,18 @@ class ModelManager:
     
     def __init__(self, config_path: str = "configs/models.yaml"):
         self.config_path = config_path
+        self.config_dir = os.path.dirname(os.path.abspath(config_path))
         self.models: Dict[str, ModelConfig] = {}
         self.model_types: Dict[str, ModelTypeConfig] = {}
         self._load_config()
+    
+    def _resolve_path(self, path: Optional[str]) -> Optional[str]:
+        """将相对路径转换为绝对路径"""
+        if not path:
+            return None
+        if os.path.isabs(path):
+            return path
+        return os.path.normpath(os.path.join(self.config_dir, '..', path))
     
     def _load_config(self):
         """加载配置文件"""
@@ -54,10 +69,13 @@ class ModelManager:
         
         # 加载模型
         for m in config.get('models', []):
+            model_path = self._resolve_path(m.get('path', ''))
+            mmproj_path = self._resolve_path(m.get('mmproj'))
+            
             model = ModelConfig(
                 id=m.get('id', ''),
                 name=m.get('name', ''),
-                path=m.get('path', ''),
+                path=model_path,
                 type=m.get('type', 'language-model'),
                 category=m.get('category', 'unknown'),
                 format=m.get('format', 'gguf'),
@@ -67,8 +85,14 @@ class ModelManager:
                 max_context=m.get('max_context', 32768),
                 default_temp=m.get('default_temp', 0.7),
                 default_top_p=m.get('default_top_p', 0.8),
+                default_top_k=m.get('default_top_k', 20),
+                default_max_tokens=m.get('default_max_tokens', 4096),
+                enable_thinking=m.get('enable_thinking'),
+                parallel=m.get('parallel', 1),
+                batch_size=m.get('batch_size', 512),
                 tags=m.get('tags', []),
-                description=m.get('description', '')
+                description=m.get('description', ''),
+                mmproj=mmproj_path
             )
             # 检查文件是否存在
             model.file_exists = os.path.exists(model.path)

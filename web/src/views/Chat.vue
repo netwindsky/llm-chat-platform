@@ -80,6 +80,12 @@
               </div>
               <div class="message-content">
                 <div class="message-bubble">
+                  <!-- 图片显示 -->
+                  <div v-if="msg.images && msg.images.length > 0" class="message-images">
+                    <div v-for="(img, idx) in msg.images" :key="idx" class="message-image-frame">
+                      <img :src="'data:image/jpeg;base64,' + img" />
+                    </div>
+                  </div>
                   {{ msg.content }}
                 </div>
               </div>
@@ -177,29 +183,64 @@
       <!-- 输入区 -->
       <footer class="input-area">
         <div class="input-wrapper">
+          <!-- 图片预览 -->
+          <div v-if="selectedImages.length > 0" class="image-preview-area">
+            <div v-for="(img, idx) in selectedImages" :key="idx" class="image-preview-card">
+              <div class="image-frame">
+                <img :src="img.preview" alt="preview" />
+              </div>
+              <button class="close-btn" @click="removeImage(idx)">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
           <div class="input-container">
+            <!-- 图片上传按钮 -->
+            <button 
+              v-if="isVisionModel"
+              class="upload-btn"
+              :disabled="loading"
+              @click="triggerImageUpload"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="17,8 12,3 7,8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </button>
+            <input 
+              ref="imageInput"
+              type="file" 
+              accept="image/*" 
+              multiple 
+              style="display: none"
+              @change="handleImageSelect"
+            />
+            
             <el-input
               v-model="inputMessage"
               type="textarea"
               :rows="1"
-              placeholder="输入消息..."
+              :placeholder="isVisionModel ? '输入消息或上传图片...' : '输入消息...'"
               @keydown.enter.exact.prevent="sendMessage"
               :disabled="loading || !selectedModel"
               :autosize="{ minRows: 1, maxRows: 6 }"
               resize="none"
               class="message-input"
             />
-            <el-button 
+            <button 
               class="send-btn"
-              :class="{ 'send-btn-active': inputMessage.trim() && !loading }"
-              :loading="loading"
-              :disabled="!inputMessage.trim() || !selectedModel"
+              :class="{ 'send-btn-active': (inputMessage.trim() || selectedImages.length > 0) && !loading }"
+              :disabled="(!inputMessage.trim() && selectedImages.length === 0) || !selectedModel"
               @click="sendMessage"
             >
-              <svg v-if="!loading" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg v-if="!loading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
               </svg>
-            </el-button>
+            </button>
           </div>
           
           <!-- 参数显示 -->
@@ -243,6 +284,50 @@ const { messages, loading, stats } = storeToRefs(chatStore)
 const inputMessage = ref('')
 const selectedModel = ref(null)
 const messagesContainer = ref(null)
+const imageInput = ref(null)
+const selectedImages = ref([])
+
+// 是否为视觉模型
+const isVisionModel = computed(() => {
+  if (!currentModelConfig.value) return false
+  return currentModelConfig.value.type === 'vision-language-model'
+})
+
+// 触发图片上传
+function triggerImageUpload() {
+  imageInput.value?.click()
+}
+
+// 处理图片选择
+function handleImageSelect(event) {
+  const files = event.target.files
+  if (!files) return
+  
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) {
+      ElMessage.warning('请选择图片文件')
+      continue
+    }
+    
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      selectedImages.value.push({
+        file: file,
+        preview: e.target.result,
+        base64: e.target.result.split(',')[1]
+      })
+    }
+    reader.readAsDataURL(file)
+  }
+  
+  // 清空 input 以便重复选择相同文件
+  event.target.value = ''
+}
+
+// 移除图片
+function removeImage(index) {
+  selectedImages.value.splice(index, 1)
+}
 
 const availableModels = computed(() => {
   return models.value.filter(m => m.file_exists)
@@ -290,15 +375,26 @@ async function onModelChange(modelId) {
 }
 
 async function sendMessage() {
-  if (!inputMessage.value.trim() || !selectedModel.value) return
+  const hasText = inputMessage.value.trim()
+  const hasImages = selectedImages.value.length > 0
+  
+  if ((!hasText && !hasImages) || !selectedModel.value) return
   
   const content = inputMessage.value.trim()
   inputMessage.value = ''
   
+  // 构建消息内容
+  let messageContent = content
+  const images = selectedImages.value.map(img => img.base64)
+  
+  // 清空已选图片
+  selectedImages.value = []
+  
   try {
-    await chatStore.sendMessage(selectedModel.value, content, {
+    await chatStore.sendMessage(selectedModel.value, messageContent, {
       temperature: currentModelConfig.value?.default_temp || 0.7,
-      top_p: currentModelConfig.value?.default_top_p || 0.8
+      top_p: currentModelConfig.value?.default_top_p || 0.8,
+      images: images
     })
     
     await nextTick()
@@ -927,19 +1023,121 @@ $ai-bubble: linear-gradient(135deg, #27272a 0%, #18181b 100%);
   margin: 0 auto;
 }
 
+// 图片预览区域 - 玻璃拟态设计
+.image-preview-area {
+  display: flex;
+  gap: 12px;
+  padding: 0 0 12px 0;
+  flex-wrap: wrap;
+}
+
+.image-preview-card {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  overflow: visible;
+  flex-shrink: 0;
+  
+  .image-frame {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 10px 15px -3px rgba(0, 0, 0, 0.2),
+        0 4px 6px -2px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: 2px solid var(--bg-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    padding: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.15s ease;
+    z-index: 10;
+    
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
 .input-container {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
+  gap: 10px;
   background: var(--bg-tertiary);
   border: 1px solid $border-subtle;
   border-radius: 16px;
-  padding: 8px 8px 8px 16px;
+  padding: 8px;
   transition: all 0.2s ease;
   
   &:focus-within {
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px $accent-glow;
+  }
+  
+  // 上传按钮 - 半透明玻璃效果
+  .upload-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text-primary);
+    }
+    
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -970,39 +1168,89 @@ $ai-bubble: linear-gradient(135deg, #27272a 0%, #18181b 100%);
 }
 
 .send-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--bg-elevated);
-  border: 1px solid $border-subtle;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
   
   svg {
     width: 18px;
     height: 18px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
   }
   
   &:hover:not(:disabled) {
-    background: var(--accent-primary);
-    border-color: var(--accent-primary);
-    color: #fff;
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    
+    svg {
+      opacity: 0.9;
+    }
   }
   
   &-active {
     background: var(--accent-primary);
     border-color: var(--accent-primary);
     color: #fff;
-    box-shadow: 0 4px 12px $accent-glow;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    
+    svg {
+      opacity: 1;
+    }
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+    }
   }
   
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
+  }
+}
+
+// 消息中的图片
+.message-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.message-image-frame {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  &:hover {
+    transform: scale(1.03);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 }
 

@@ -16,11 +16,11 @@
     <!-- 模型类型筛选 -->
     <div class="type-filter">
       <el-radio-group v-model="selectedType" @change="filterModels">
-        <el-radio-button label="">全部</el-radio-button>
+        <el-radio-button value="">全部</el-radio-button>
         <el-radio-button 
           v-for="type in modelTypes" 
           :key="type.id" 
-          :label="type.id"
+          :value="type.id"
         >
           {{ type.icon }} {{ type.description }} ({{ type.count }})
         </el-radio-button>

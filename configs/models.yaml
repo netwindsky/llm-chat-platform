@@ -40,10 +40,72 @@ models:
       - chinese
     description: Qwen3.5 35B 更新版
 
+  - id: qwen3.5-35b-a3b-thinking
+    name: Qwen3.5-35B-A3B 思考模式
+    path: models/language-models/Qwen3.5/Qwen3.5-35B-A3B-UD-Q4_K_XL_1.gguf
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 16384
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    enable_thinking: true
+    tags:
+      - chat
+      - reasoning
+      - coding
+      - chinese
+    description: Qwen3.5 35B 思考模式，适合编码和复杂推理任务
+
+  - id: qwen3.5-35b-a3b-no-thinking
+    name: Qwen3.5-35B-A3B 非思考模式
+    path: models/language-models/Qwen3.5/Qwen3.5-35B-A3B-UD-Q4_K_XL_1.gguf
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 16384
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    enable_thinking: false
+    tags:
+      - chat
+      - general
+      - chinese
+    description: Qwen3.5 35B 非思考模式，适合通用对话任务
+
+  - id: qwen3.5-35b-a3b-vision
+    name: Qwen3.5-35B-A3B 图片分析专用
+    path: models/language-models/Qwen3.5/Qwen3.5-35B-A3B-UD-Q4_K_XL_1.gguf
+    mmproj: models/vision-language-models/mmproj/Qwen3.5-35B-A3B-mmproj-F16.gguf
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.3
+    default_top_p: 0.9
+    default_max_tokens: 8192
+    tags:
+      - vision
+      - multimodal
+      - image-analysis
+    description: Qwen3.5 35B 图片分析专用配置，优化输出长度和分析质量
+
   - id: qwen3.5-27b-ud-q4
     name: Qwen3.5-27B (UD-Q4)
     path: models/language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
-    type: language-model
+    mmproj: models/vision-language-models/mmproj/Qwen3.5-27B-1-mmproj-F16_4.gguf
+    type: vision-language-model
     category: Qwen
     format: gguf
     size: 27B
@@ -55,7 +117,29 @@ models:
     tags:
       - chat
       - general
-    description: Qwen3.5 中等规模模型
+      - vision
+      - multimodal
+    description: Qwen3.5 中等规模模型，支持视觉多模态
+
+  - id: qwen3.5-27b-ud-q4-xl-1
+    name: Qwen3.5-27B (UD-Q4 XL) 更新版
+    path: models/language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL_1.gguf
+    mmproj: models/vision-language-models/mmproj/Qwen3.5-27B-1-mmproj-F16_4.gguf
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - chat
+      - general
+      - vision
+      - multimodal
+    description: Qwen3.5 27B 更新版本，支持视觉多模态
 
   # ============ 语言模型 - Qwen3 ============
 
@@ -210,6 +294,7 @@ models:
   - id: internvl3-8b-q5
     name: InternVL3-8B (Q5)
     path: models/vision-language-models/InternVL/InternVL3-8B-Q5_K_M.gguf
+    mmproj: models/vision-language-models/mmproj/mmproj-InternVL3-8B-Instruct-f16.gguf
     type: vision-language-model
     category: InternVL
     format: gguf
@@ -224,12 +309,34 @@ models:
       - chinese
     description: 智谱 InternVL3 视觉模型
 
+  # ============ 视觉模型 - Qwen3.5 ============
+
+  - id: qwen3.5-27b-vl
+    name: Qwen3.5-27B-VL
+    path: models/language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL_1.gguf
+    mmproj: models/vision-language-models/mmproj/Qwen3.5-27B-1-mmproj-F16_4.gguf
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    tags:
+      - vision
+      - multimodal
+      - chat
+    description: Qwen3.5 27B 视觉多模态版本
+
   # ============ 语言模型 - Qwen3.5 (新增) ============
 
   - id: qwen3.5-9b-ud-q4
     name: Qwen3.5-9B (UD-Q4)
     path: models/language-models/Qwen3.5/Qwen3.5-9B-UD-Q4_K_XL.gguf
-    type: language-model
+    mmproj: models/vision-language-models/mmproj/Qwen3.5-9B-mmproj-F16.gguf
+    type: vision-language-model
     category: Qwen
     format: gguf
     size: 9B
@@ -242,7 +349,9 @@ models:
       - chat
       - general
       - chinese
-    description: Qwen3.5 小型模型
+      - vision
+      - multimodal
+    description: Qwen3.5 小型模型，支持视觉多模态
 
   # ============ 语言模型 - DeepSeek ============
 
@@ -392,11 +501,9 @@ models:
     max_context: 32768
     default_temp: 0.7
     default_top_p: 0.8
-    tags:
-      - translation
-      - fast
-      - chinese
-    description: HY MT1.5 小型翻译模型
+    parallel: 4
+    batch_size: 512
+    description: HY MT1.5 小型翻译模型，支持并发处理
 
   - id: hy-mt1.5-7b-q4-m
     name: HY-MT1.5-7B (Q4 M)
@@ -410,11 +517,9 @@ models:
     max_context: 32768
     default_temp: 0.7
     default_top_p: 0.8
-    tags:
-      - translation
-      - fast
-      - chinese
-    description: HY MT1.5 中型翻译模型
+    parallel: 4
+    batch_size: 512
+    description: HY MT1.5 中型翻译模型，支持并发处理
 
   # ============ 语言模型 - Phi ============
 
@@ -456,6 +561,25 @@ models:
       - developer
       - long-context
     description: 阿里巴巴代码专用模型 1M 上下文
+
+  # ============ 嵌入模型 ============
+
+  - id: snowflake-arctic-embed-l
+    name: Snowflake Arctic Embed L
+    path: models/embedding-models/snowflake-arctic-embed-l--Q4_K_M.GGUF
+    type: embedding-model
+    category: Snowflake
+    format: gguf
+    size: 335M
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 512
+    default_temp: 0.0
+    tags:
+      - embedding
+      - retrieval
+      - vector
+    description: Snowflake 文本嵌入模型，用于向量检索
 
 # ============ 模型类型定义 ============
 model_types:

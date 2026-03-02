@@ -7,6 +7,10 @@
         返回聊天
       </el-button>
       <h1>系统设置</h1>
+      <el-button type="primary" @click="$router.push('/models')">
+        <el-icon><Cpu /></el-icon>
+        模型管理
+      </el-button>
     </div>
 
     <div class="settings-content">
@@ -60,8 +64,8 @@
           <div 
             v-for="theme in themes" 
             :key="theme.id"
-            :class="['theme-item', { active: currentTheme === theme.id }]"
-            @click="setTheme(theme.id)"
+            :class="['theme-item', { active: currentTheme.value === theme.id }]"
+            @click="handleSetTheme(theme.id)"
           >
             <div class="theme-preview">
               <span :style="{ color: theme.strong }">★</span>
@@ -92,13 +96,17 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Back } from '@element-plus/icons-vue'
+import { Back, Cpu } from '@element-plus/icons-vue'
 import { useThemeStore } from '@/stores/theme'
 
 const themeStore = useThemeStore()
 const themes = themeStore.getThemes()
 const currentTheme = themeStore.currentTheme
-const setTheme = themeStore.setTheme
+
+function handleSetTheme(themeId) {
+  console.log('Setting theme to:', themeId)
+  themeStore.setTheme(themeId)
+}
 
 const settings = ref({
   gpuLayers: 99,
@@ -164,6 +172,8 @@ const settings = ref({
   &.active {
     border-color: #409eff;
     background: #ecf5ff;
+    box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.3);
+    transform: scale(1.05);
   }
 }
 

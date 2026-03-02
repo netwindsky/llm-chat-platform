@@ -59,9 +59,6 @@ const sanitizedHtml = computed(() => {
   --md-accent-hover: #6366f1;
   --md-code-pink: #f472b6;
   --md-code-cyan: #67e8f9;
-  --md-strong: var(--md-strong, #fbbf24);
-  --md-em: var(--md-em, #60a5fa);
-  --md-del: var(--md-del, #f87171);
   
   line-height: 1.6;
   color: var(--md-text-primary);
@@ -300,18 +297,18 @@ const sanitizedHtml = computed(() => {
 }
 
 .markdown-body :deep(strong) {
-  color: var(--md-strong);
+  color: var(--md-strong, #fbbf24);
   font-weight: 700;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--md-strong) 30%, transparent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--md-strong, #fbbf24) 30%, transparent);
 }
 
 .markdown-body :deep(em) {
-  color: var(--md-em);
+  color: var(--md-em, #60a5fa);
   font-style: italic;
 }
 
 .markdown-body :deep(del) {
-  color: var(--md-del);
+  color: var(--md-del, #f87171);
   text-decoration: line-through;
 }
 

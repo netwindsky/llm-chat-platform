@@ -25,6 +25,9 @@ class ModelInfoResponse(BaseModel):
     max_context: int
     default_temp: float
     default_top_p: float
+    default_top_k: int = 20
+    default_max_tokens: int = 4096
+    enable_thinking: Optional[bool] = None
     tags: List[str]
     description: str
     status: str
@@ -90,6 +93,9 @@ async def list_models(
             "max_context": m.max_context,
             "default_temp": m.default_temp,
             "default_top_p": m.default_top_p,
+            "default_top_k": m.default_top_k,
+            "default_max_tokens": m.default_max_tokens,
+            "enable_thinking": m.enable_thinking,
             "tags": m.tags,
             "description": m.description,
             "status": m.status,
@@ -164,6 +170,9 @@ async def get_model(model_id: str):
         max_context=model.max_context,
         default_temp=model.default_temp,
         default_top_p=model.default_top_p,
+        default_top_k=model.default_top_k,
+        default_max_tokens=model.default_max_tokens,
+        enable_thinking=model.enable_thinking,
         tags=model.tags,
         description=model.description,
         status=model.status,
@@ -200,23 +209,34 @@ async def load_model(model_id: str, request: ModelLoadRequest = None):
             if m.status == "loaded" and m.id != model_id:
                 model_manager.update_model_status(m.id, "unloaded")
         
+        # 构建模型配置，包含 mmproj（视觉模型需要）
+        model_config = {
+            "id": model.id,
+            "name": model.name,
+            "type": model.type,
+            "category": model.category,
+            "max_context": context_size or model.max_context,
+            "gpu_layers": gpu_layers,
+            "temperature": temperature or model.default_temp,
+            "top_p": top_p or model.default_top_p,
+            "default_temp": model.default_temp,
+            "default_top_p": model.default_top_p,
+            "default_top_k": model.default_top_k,
+            "enable_thinking": model.enable_thinking,
+            "parallel": model.parallel,
+            "batch_size": model.batch_size,
+            "tags": model.tags,
+            "description": model.description
+        }
+        
+        # 添加 mmproj 路径（如果有）
+        if model.mmproj:
+            model_config["mmproj"] = model.mmproj
+        
         success = await backend_manager.load_model(
             model_id,
             model.path,
-            {
-                "id": model.id,
-                "name": model.name,
-                "type": model.type,
-                "category": model.category,
-                "max_context": context_size or model.max_context,
-                "gpu_layers": gpu_layers,
-                "temperature": temperature or model.default_temp,
-                "top_p": top_p or model.default_top_p,
-                "default_temp": model.default_temp,
-                "default_top_p": model.default_top_p,
-                "tags": model.tags,
-                "description": model.description
-            }
+            model_config
         )
         
         if success:
@@ -227,6 +247,8 @@ async def load_model(model_id: str, request: ModelLoadRequest = None):
             return {"success": False, "message": f"Failed to load model {model_id}"}
             
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         model_manager.update_model_status(model_id, "error")
         raise HTTPException(status_code=500, detail=str(e))
 
