@@ -16,9 +16,18 @@ class ContentItem(BaseModel):
     image_url: Optional[ImageUrl] = None
 
 
+class ToolCall(BaseModel):
+    id: str
+    type: str = "function"
+    function: Dict[str, Any]
+
+
 class ChatMessage(BaseModel):
     role: str
-    content: Union[str, List[ContentItem]]
+    content: Union[str, List[ContentItem], None] = None
+    tool_calls: Optional[List[ToolCall]] = None
+    tool_call_id: Optional[str] = None
+    name: Optional[str] = None
 
 
 class ChatRequest(BaseModel):
@@ -30,6 +39,8 @@ class ChatRequest(BaseModel):
     max_tokens: Optional[int] = 4096
     stream: Optional[bool] = False
     stop: Optional[List[str]] = None
+    tools: Optional[List[Dict[str, Any]]] = None
+    tool_choice: Optional[Union[str, Dict[str, Any]]] = None
 
 
 class ChatResponse(BaseModel):
@@ -85,32 +96,61 @@ async def chat_completions(request: ChatRequest):
         from ...core.backend import ChatMessage as BackendChatMessage
         import json
         
-        # 过滤掉空的 assistant 消息（避免 llama-server 的 prefill 错误）
+        # 过滤掉空的 assistant 消息（但保留包含 tool_calls 的消息）
         filtered_messages = [
             m for m in request.messages 
-            if not (m.role == 'assistant' and (not m.content or (isinstance(m.content, str) and m.content.strip() == '')))
+            if not (
+                m.role == 'assistant' 
+                and (not m.content or (isinstance(m.content, str) and m.content.strip() == ''))
+                and not m.tool_calls  # 保留包含 tool_calls 的消息
+            )
         ]
         
-        # 转换消息格式（保留多模态格式）
-        def convert_content(content):
-            """转换内容为后端格式，保留多模态结构"""
-            if isinstance(content, str):
-                return content
-            elif isinstance(content, list):
-                # 多模态格式：转换为字典列表
-                result = []
-                for item in content:
-                    if item.type == 'text' and item.text:
-                        result.append({"type": "text", "text": item.text})
-                    elif item.type == 'image_url' and item.image_url:
-                        result.append({
-                            "type": "image_url", 
-                            "image_url": {"url": item.image_url.url}
-                        })
-                return result
-            return str(content)
+        # 转换消息格式（保留多模态格式和 tool_calls）
+        def convert_message(m):
+            """转换消息为后端格式，保留多模态结构和 tool_calls"""
+            msg_dict = {"role": m.role}
+            
+            # 处理 content
+            if m.content is not None:
+                if isinstance(m.content, str):
+                    msg_dict["content"] = m.content
+                elif isinstance(m.content, list):
+                    # 多模态格式：转换为字典列表
+                    result = []
+                    for item in m.content:
+                        if item.type == 'text' and item.text:
+                            result.append({"type": "text", "text": item.text})
+                        elif item.type == 'image_url' and item.image_url:
+                            result.append({
+                                "type": "image_url", 
+                                "image_url": {"url": item.image_url.url}
+                            })
+                    msg_dict["content"] = result
+                else:
+                    msg_dict["content"] = str(m.content)
+            
+            # 保留 tool_calls
+            if m.tool_calls:
+                msg_dict["tool_calls"] = [
+                    {
+                        "id": tc.id,
+                        "type": tc.type,
+                        "function": tc.function
+                    } for tc in m.tool_calls
+                ]
+            
+            # 保留 tool_call_id（用于 tool 角色的消息）
+            if m.tool_call_id:
+                msg_dict["tool_call_id"] = m.tool_call_id
+            
+            # 保留 name（用于 function 角色的消息）
+            if m.name:
+                msg_dict["name"] = m.name
+            
+            return msg_dict
         
-        messages = [BackendChatMessage(role=m.role, content=convert_content(m.content)) for m in filtered_messages]
+        messages = [convert_message(m) for m in filtered_messages]
         print(f"Converted messages: {len(messages)} (filtered from {len(request.messages)})")
         
         # 使用请求中的值或模型配置中的默认值
@@ -123,6 +163,13 @@ async def chat_completions(request: ChatRequest):
             "top_k": request.top_k,
             "max_tokens": max_tokens
         }
+        
+        # 传递 tools 参数
+        if request.tools:
+            config["tools"] = request.tools
+            print(f"Using tools: {len(request.tools)} tools")
+        if request.tool_choice:
+            config["tool_choice"] = request.tool_choice
         
         # 传递 enable_thinking 参数
         if model_config and model_config.enable_thinking is not None:
@@ -138,6 +185,15 @@ async def chat_completions(request: ChatRequest):
                     async for chunk in backend_manager.chat_stream(request.model, messages, config):
                         # 构造 SSE 格式的响应
                         delta = chunk.choices[0].get("delta", {}) if chunk.choices else {}
+                        delta_dict = {
+                            "content": delta.get("content", ""),
+                            "thinking": delta.get("thinking", "")
+                        }
+                        
+                        # 保留 tool_calls（如果存在）
+                        if "tool_calls" in delta:
+                            delta_dict["tool_calls"] = delta["tool_calls"]
+                        
                         chunk_data = {
                             "id": chunk.id,
                             "object": "chat.completion.chunk",
@@ -145,10 +201,7 @@ async def chat_completions(request: ChatRequest):
                             "model": chunk.model,
                             "choices": [{
                                 "index": 0,
-                                "delta": {
-                                    "content": delta.get("content", ""),
-                                    "thinking": delta.get("thinking", "")
-                                },
+                                "delta": delta_dict,
                                 "finish_reason": chunk.choices[0].get("finish_reason") if chunk.choices else None
                             }]
                         }
@@ -200,9 +253,31 @@ async def chat_stream(request: ChatRequest):
         return await chat_completions(request)
     
     try:
-        from ...core.backend import ChatMessage as BackendChatMessage
+        # 转换消息格式（保留 tool_calls）
+        def convert_message(m):
+            msg_dict = {"role": m.role}
+            if m.content is not None:
+                if isinstance(m.content, str):
+                    msg_dict["content"] = m.content
+                elif isinstance(m.content, list):
+                    result = []
+                    for item in m.content:
+                        if item.type == 'text' and item.text:
+                            result.append({"type": "text", "text": item.text})
+                        elif item.type == 'image_url' and item.image_url:
+                            result.append({"type": "image_url", "image_url": {"url": item.image_url.url}})
+                    msg_dict["content"] = result
+                else:
+                    msg_dict["content"] = str(m.content)
+            if m.tool_calls:
+                msg_dict["tool_calls"] = [{"id": tc.id, "type": tc.type, "function": tc.function} for tc in m.tool_calls]
+            if m.tool_call_id:
+                msg_dict["tool_call_id"] = m.tool_call_id
+            if m.name:
+                msg_dict["name"] = m.name
+            return msg_dict
         
-        messages = [BackendChatMessage(role=m.role, content=m.content) for m in request.messages]
+        messages = [convert_message(m) for m in request.messages]
         
         config = {
             "temperature": request.temperature,

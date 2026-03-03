@@ -18,9 +18,18 @@ class ContentItem(BaseModel):
     image_url: Optional[ImageUrl] = None
 
 
+class ToolCall(BaseModel):
+    id: str
+    type: str = "function"
+    function: Dict[str, Any]
+
+
 class ChatMessage(BaseModel):
     role: str
-    content: Union[str, List[ContentItem]]
+    content: Union[str, List[ContentItem], None] = None
+    tool_calls: Optional[List[ToolCall]] = None
+    tool_call_id: Optional[str] = None
+    name: Optional[str] = None
 
 
 class ChatRequest(BaseModel):
@@ -32,6 +41,8 @@ class ChatRequest(BaseModel):
     max_tokens: Optional[int] = None
     stream: Optional[bool] = False
     stop: Optional[List[str]] = None
+    tools: Optional[List[Dict[str, Any]]] = None
+    tool_choice: Optional[Union[str, Dict[str, Any]]] = None
 
 
 class ChatResponse(BaseModel):
@@ -161,28 +172,59 @@ async def chat_completions(request: ChatRequest):
     try:
         from ...core.backend import ChatMessage as BackendChatMessage
         
-        def convert_content(content):
-            if isinstance(content, str):
-                return content
-            elif isinstance(content, list):
-                result = []
-                for item in content:
-                    if item.type == 'text' and item.text:
-                        result.append({"type": "text", "text": item.text})
-                    elif item.type == 'image_url' and item.image_url:
-                        result.append({
-                            "type": "image_url",
-                            "image_url": {"url": item.image_url.url}
-                        })
-                return result
-            return str(content)
+        def convert_message(m):
+            """转换消息为后端格式，保留 tool_calls"""
+            msg_dict = {"role": m.role}
+            
+            # 处理 content
+            if m.content is not None:
+                if isinstance(m.content, str):
+                    msg_dict["content"] = m.content
+                elif isinstance(m.content, list):
+                    result = []
+                    for item in m.content:
+                        if item.type == 'text' and item.text:
+                            result.append({"type": "text", "text": item.text})
+                        elif item.type == 'image_url' and item.image_url:
+                            result.append({
+                                "type": "image_url",
+                                "image_url": {"url": item.image_url.url}
+                            })
+                    msg_dict["content"] = result
+                else:
+                    msg_dict["content"] = str(m.content)
+            
+            # 保留 tool_calls
+            if m.tool_calls:
+                msg_dict["tool_calls"] = [
+                    {
+                        "id": tc.id,
+                        "type": tc.type,
+                        "function": tc.function
+                    } for tc in m.tool_calls
+                ]
+            
+            # 保留 tool_call_id
+            if m.tool_call_id:
+                msg_dict["tool_call_id"] = m.tool_call_id
+            
+            # 保留 name
+            if m.name:
+                msg_dict["name"] = m.name
+            
+            return msg_dict
         
+        # 过滤掉空的 assistant 消息（但保留包含 tool_calls 的消息）
         filtered_messages = [
             m for m in request.messages
-            if not (m.role == 'assistant' and (not m.content or (isinstance(m.content, str) and m.content.strip() == '')))
+            if not (
+                m.role == 'assistant'
+                and (not m.content or (isinstance(m.content, str) and m.content.strip() == ''))
+                and not m.tool_calls
+            )
         ]
         
-        messages = [BackendChatMessage(role=m.role, content=convert_content(m.content)) for m in filtered_messages]
+        messages = [convert_message(m) for m in filtered_messages]
         
         default_max_tokens = model_config.default_max_tokens if model_config else 4096
         max_tokens = request.max_tokens if request.max_tokens is not None else default_max_tokens
@@ -194,6 +236,12 @@ async def chat_completions(request: ChatRequest):
             "max_tokens": max_tokens
         }
         
+        # 传递 tools 参数
+        if request.tools:
+            config["tools"] = request.tools
+        if request.tool_choice:
+            config["tool_choice"] = request.tool_choice
+        
         if model_config and model_config.enable_thinking is not None:
             config["enable_thinking"] = model_config.enable_thinking
         
@@ -202,6 +250,15 @@ async def chat_completions(request: ChatRequest):
                 try:
                     async for chunk in _backend_manager.chat_stream(request.model, messages, config):
                         delta = chunk.choices[0].get("delta", {}) if chunk.choices else {}
+                        delta_dict = {
+                            "content": delta.get("content", ""),
+                            "thinking": delta.get("thinking", "")
+                        }
+                        
+                        # 保留 tool_calls（如果存在）
+                        if "tool_calls" in delta:
+                            delta_dict["tool_calls"] = delta["tool_calls"]
+                        
                         chunk_data = {
                             "id": chunk.id,
                             "object": "chat.completion.chunk",
@@ -209,10 +266,7 @@ async def chat_completions(request: ChatRequest):
                             "model": chunk.model,
                             "choices": [{
                                 "index": 0,
-                                "delta": {
-                                    "content": delta.get("content", ""),
-                                    "thinking": delta.get("thinking", "")
-                                },
+                                "delta": delta_dict,
                                 "finish_reason": chunk.choices[0].get("finish_reason") if chunk.choices else None
                             }]
                         }

@@ -3,6 +3,7 @@ import json
 import asyncio
 import subprocess
 import signal
+import re
 from typing import AsyncGenerator, Dict, Any, Optional, List
 from datetime import datetime
 
@@ -14,6 +15,62 @@ from ..core.backend import (
     ChatChunk,
     ModelStatus
 )
+
+
+def parse_tool_calls(content: str) -> Optional[List[Dict[str, Any]]]:
+    """从 content 中解析 tool_calls
+    
+    支持的格式:
+    1. <tool_call> <function=function_name> <parameter=value> ... </tool_call>
+    2. task(agent="...", description="...", ...)
+    """
+    tool_calls = []
+    
+    # 匹配 <tool_call> 格式
+    tool_call_pattern = r'<tool_call>\s*<(\w+)=([^>]+)>\s*(.*?)</tool_call>'
+    matches = re.findall(tool_call_pattern, content, re.DOTALL)
+    
+    for match in matches:
+        func_type, func_name, params_str = match
+        # 解析参数
+        params = {}
+        param_pattern = r'<(\w+)>\s*(.*?)\s*</\w+>'
+        for pmatch in re.findall(param_pattern, params_str):
+            params[pmatch[0]] = pmatch[1].strip()
+        
+        tool_calls.append({
+            "id": f"call_{len(tool_calls)}",
+            "type": "function",
+            "function": {
+                "name": func_name.strip(),
+                "arguments": json.dumps(params) if params else "{}"
+            }
+        })
+    
+    # 匹配 task(...) 格式
+    task_pattern = r'task\((.*?)\)(?!\s*\w)'
+    for match in re.finditer(task_pattern, content, re.DOTALL):
+        args_str = match.group(1)
+        # 解析 task 参数
+        args = {}
+        # 匹配 key=value 对
+        kv_pattern = r'(\w+)\s*=\s*("[^"]*"|\[[^\]]*\]|[^,\)]+)'
+        for kv in re.findall(kv_pattern, args_str):
+            key, value = kv
+            value = value.strip().strip('"')
+            args[key] = value
+        
+        if args:
+            tool_calls.append({
+                "id": f"call_{len(tool_calls)}",
+                "type": "function", 
+                "function": {
+                    "name": "task",
+                    "arguments": json.dumps(args)
+                }
+            })
+    
+    return tool_calls if tool_calls else None
 
 
 class LlamaBackend(InferenceBackend):
@@ -69,10 +126,10 @@ class LlamaBackend(InferenceBackend):
             ctx_size = model_config.get("max_context", 32768)
             ngl = model_config.get("gpu_layers", 99)
             parallel = model_config.get("parallel", 1)
-            batch_size = model_config.get("batch_size", 512)
+            batch_size = model_config.get("batch_size", 2048)
             
             # 使用固定端口
-            port = 8081
+            port = 38521
             
             cmd = [
                 server_path,
@@ -83,6 +140,8 @@ class LlamaBackend(InferenceBackend):
                 "-ngl", str(ngl),
                 "-np", str(parallel),
                 "-b", str(batch_size),
+                "-ub", str(batch_size),
+                "-fa", "on",
                 "--cont-batching"
             ]
             
@@ -294,15 +353,19 @@ class LlamaBackend(InferenceBackend):
         
         start_time = time()
         
-        # 构建消息列表（支持多模态）
+        # 构建消息列表（支持多模态和 tool_calls）
         def build_message(msg):
-            """构建消息，保留多模态格式"""
-            if isinstance(msg.content, list):
-                # 多模态格式
-                return {"role": msg.role, "content": msg.content}
+            """构建消息，保留多模态格式和 tool_calls"""
+            # msg 可能是 dict 或对象
+            if isinstance(msg, dict):
+                # 已经是 dict，直接返回（保留 tool_calls 等字段）
+                return msg
             else:
-                # 纯文本格式
-                return {"role": msg.role, "content": str(msg.content)}
+                # 是对象，转换
+                if isinstance(msg.content, list):
+                    return {"role": msg.role, "content": msg.content}
+                else:
+                    return {"role": msg.role, "content": str(msg.content)}
         
         payload = {
             "messages": [build_message(m) for m in messages],
@@ -312,6 +375,16 @@ class LlamaBackend(InferenceBackend):
             "max_tokens": config.get("max_tokens", 4096),
             "stream": False
         }
+        
+        # 支持 tools 参数
+        tools = config.get("tools")
+        if tools:
+            payload["tools"] = tools
+            print(f"[DEBUG] Adding {len(tools)} tools to payload")
+        
+        tool_choice = config.get("tool_choice")
+        if tool_choice:
+            payload["tool_choice"] = tool_choice
         
         # 支持 enable_thinking 参数
         enable_thinking = config.get("enable_thinking")
@@ -348,11 +421,34 @@ class LlamaBackend(InferenceBackend):
                     
                     end_time = time()
                     
-                    content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    message = result.get("choices", [{}])[0].get("message", {})
+                    content = message.get("content", "")
                     usage = result.get("usage", {})
                     
                     # deepseek 格式的思考内容在 reasoning_content 字段
-                    thinking = result.get("choices", [{}])[0].get("message", {}).get("reasoning_content", "")
+                    thinking = message.get("reasoning_content", "")
+                    
+                    # 提取 tool_calls（如果存在）
+                    tool_calls = message.get("tool_calls")
+                    
+                    # 如果没有 tool_calls，尝试从 content 解析
+                    if not tool_calls and content:
+                        parsed_calls = parse_tool_calls(content)
+                        if parsed_calls:
+                            tool_calls = parsed_calls
+                            # 如果 content 中只有工具调用，清空 content
+                            # 保留非工具调用部分的文本
+                    
+                    # 构建 message 字典
+                    message_dict = {
+                        "role": "assistant",
+                        "content": content,
+                        "thinking": thinking
+                    }
+                    
+                    # 如果有 tool_calls，添加到响应
+                    if tool_calls:
+                        message_dict["tool_calls"] = tool_calls
                     
                     return ChatResponse(
                         id=result.get("id", "chatcmpl-unknown"),
@@ -360,11 +456,7 @@ class LlamaBackend(InferenceBackend):
                         model=result.get("model", self._model_info.name if self._model_info else "unknown"),
                         choices=[{
                             "index": 0,
-                            "message": {
-                                "role": "assistant",
-                                "content": content,
-                                "thinking": thinking
-                            },
+                            "message": message_dict,
                             "finish_reason": result.get("choices", [{}])[0].get("finish_reason", "stop")
                         }],
                         usage={
@@ -393,15 +485,19 @@ class LlamaBackend(InferenceBackend):
         
         start_time = time()
         
-        # 构建消息列表（支持多模态）
+        # 构建消息列表（支持多模态和 tool_calls）
         def build_message(msg):
-            """构建消息，保留多模态格式"""
-            if isinstance(msg.content, list):
-                # 多模态格式
-                return {"role": msg.role, "content": msg.content}
+            """构建消息，保留多模态格式和 tool_calls"""
+            # msg 可能是 dict 或对象
+            if isinstance(msg, dict):
+                # 已经是 dict，直接返回（保留 tool_calls 等字段）
+                return msg
             else:
-                # 纯文本格式
-                return {"role": msg.role, "content": str(msg.content)}
+                # 是对象，转换
+                if isinstance(msg.content, list):
+                    return {"role": msg.role, "content": msg.content}
+                else:
+                    return {"role": msg.role, "content": str(msg.content)}
         
         payload = {
             "messages": [build_message(m) for m in messages],
@@ -411,6 +507,16 @@ class LlamaBackend(InferenceBackend):
             "max_tokens": config.get("max_tokens", 4096),
             "stream": True
         }
+        
+        # 支持 tools 参数
+        tools = config.get("tools")
+        if tools:
+            payload["tools"] = tools
+            print(f"[DEBUG] chat_stream: Adding {len(tools)} tools to payload")
+        
+        tool_choice = config.get("tool_choice")
+        if tool_choice:
+            payload["tool_choice"] = tool_choice
         
         # 支持 enable_thinking 参数
         enable_thinking = config.get("enable_thinking")
@@ -439,16 +545,26 @@ class LlamaBackend(InferenceBackend):
                             # deepseek 格式的思考内容在 reasoning_content 字段
                             thinking = delta.get("reasoning_content", "")
                             
+                            # 提取 tool_calls
+                            tool_calls = delta.get("tool_calls")
+                            
+                            # 构建 delta 字典
+                            delta_dict = {
+                                "content": content,
+                                "thinking": thinking
+                            }
+                            
+                            # 如果有 tool_calls，添加到 delta
+                            if tool_calls:
+                                delta_dict["tool_calls"] = tool_calls
+                            
                             yield ChatChunk(
                                 id=chunk_data.get("id", "chatcmpl-stream"),
                                 created=chunk_data.get("created", int(start_time)),
                                 model=chunk_data.get("model", self._model_info.name if self._model_info else "unknown"),
                                 choices=[{
                                     "index": 0,
-                                    "delta": {
-                                        "content": content,
-                                        "thinking": thinking
-                                    },
+                                    "delta": delta_dict,
                                     "finish_reason": chunk_data.get("choices", [{}])[0].get("finish_reason")
                                 }]
                             )

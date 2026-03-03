@@ -24,7 +24,7 @@ class ModelConfig:
     default_max_tokens: int = 4096
     enable_thinking: Optional[bool] = None
     parallel: int = 1
-    batch_size: int = 512
+    batch_size: int = 2048
     tags: List[str] = field(default_factory=list)
     description: str = ""
     status: str = "unloaded"
