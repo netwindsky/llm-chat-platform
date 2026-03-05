@@ -96,27 +96,21 @@ class BackendManager:
     
     async def chat(self, model_id: str, messages: List[ChatMessage], config: Dict[str, Any]):
         """对话生成"""
-        print(f"backend_manager.chat: acquiring lock for {model_id}")
-        async with self._lock:
-            print(f"backend_manager.chat: lock acquired for {model_id}")
-            if model_id not in self._loaded_models:
-                raise ValueError(f"Model not loaded: {model_id}")
-            
-            backend = self._loaded_models[model_id]
-            print(f"backend_manager.chat: calling backend.chat for {model_id}")
-            result = await backend.chat(messages, config)
-            print(f"backend_manager.chat: got result from backend")
-            return result
+        if model_id not in self._loaded_models:
+            raise ValueError(f"Model not loaded: {model_id}")
+        
+        backend = self._loaded_models[model_id]
+        result = await backend.chat(messages, config)
+        return result
     
     async def chat_stream(self, model_id: str, messages: List[ChatMessage], config: Dict[str, Any]):
         """流式对话生成"""
-        async with self._lock:
-            if model_id not in self._loaded_models:
-                raise ValueError(f"Model not loaded: {model_id}")
-            
-            backend = self._loaded_models[model_id]
-            async for chunk in backend.chat_stream(messages, config):
-                yield chunk
+        if model_id not in self._loaded_models:
+            raise ValueError(f"Model not loaded: {model_id}")
+        
+        backend = self._loaded_models[model_id]
+        async for chunk in backend.chat_stream(messages, config):
+            yield chunk
     
     def get_loaded_models(self) -> List[str]:
         """获取已加载的模型列表"""
