@@ -95,12 +95,13 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
+    """直接透传 llama-server 的响应"""
     id: str
     object: str = "chat.completion"
     created: int
     model: str
     choices: List[Dict[str, Any]]
-    usage: Dict[str, int]
+    usage: Optional[Dict[str, Any]] = None
 
 
 class ModelObject(BaseModel):
@@ -370,6 +371,7 @@ async def chat_completions(request: ChatRequest):
         
         response = await _backend_manager.chat(request.model, messages, config)
         
+        # 直接透传 llama-server 的响应，保持原始数据结构
         return ChatResponse(
             id=response.id,
             created=response.created,

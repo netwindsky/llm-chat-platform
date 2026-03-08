@@ -1,2137 +1,1678 @@
-- id: qwen3.5-0.8b
-  name: Qwen3.5-0.8B
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 0.8B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  description: 阿里巴巴 Qwen3.5 系列轻量级模型，适合快速推理
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
+# 模型注册表配置文件
+# 所有模型必须在此注册才能被平台使用
+
+models:
+
+  # ============ Qwen3.5-小参数 ============
+
+  - id: qwen3.5-0.8b
+    name: Qwen3.5-0.8B
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 0.8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+    description: 阿里巴巴 Qwen3.5 系列轻量级模型，适合快速推理
+
+  - id: qwen3.5-0.8b-vision
+    name: Qwen3.5-0.8B-Vision
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 0.8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - vision
+      - multimodal
+    description: Qwen3.5-0.8B 视觉模型，支持图片理解
+
+  - id: qwen3.5-0.8b-instruct-general
+    name: Qwen3.5-0.8B (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 0.8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-0.8B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-0.8b-instruct-reasoning
+    name: Qwen3.5-0.8B (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 0.8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-0.8B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-2b
+    name: Qwen3.5-2B
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 2B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+    description: 阿里巴巴 Qwen3.5 系列小型模型，平衡性能与速度
+
+  - id: qwen3.5-2b-vision
+    name: Qwen3.5-2B-Vision
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 2B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - vision
+      - multimodal
+    description: Qwen3.5-2B 视觉模型，支持图片理解
+
+  - id: qwen3.5-2b-instruct-general
+    name: Qwen3.5-2B (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 2B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-2B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-2b-instruct-reasoning
+    name: Qwen3.5-2B (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 2B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-2B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-4b-ud-q4
+    name: Qwen3.5-4B (UD-Q4)
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 4B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - general
+      - chinese
+      - vision
+      - multimodal
+    description: Qwen3.5 4B 轻量级模型，支持视觉多模态
+
+  - id: qwen3.5-4b-ud-q4-vision
+    name: Qwen3.5-4B (UD-Q4)-Vision
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 4B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - vision
+      - multimodal
+    description: Qwen3.5-4B (UD-Q4) 视觉模型，支持图片理解
+
+  - id: qwen3.5-4b-ud-q4-instruct-general
+    name: Qwen3.5-4B (UD-Q4) (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 4B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-4B (UD-Q4) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-4b-ud-q4-instruct-reasoning
+    name: Qwen3.5-4B (UD-Q4) (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 4B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-4B (UD-Q4) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-4b-ud-q4-thinking-general
+    name: Qwen3.5-4B (UD-Q4) (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 4B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-4B (UD-Q4) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-4b-ud-q4-thinking-coding
+    name: Qwen3.5-4B (UD-Q4) (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 4B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-4B (UD-Q4) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+  - id: qwen3.5-9b-ud-q4
+    name: Qwen3.5-9B (UD-Q4)
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 9B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - general
+      - chinese
+      - vision
+      - multimodal
+    description: Qwen3.5 小型模型，支持视觉多模态
+
+  - id: qwen3.5-9b-ud-q4-vision
+    name: Qwen3.5-9B (UD-Q4)-Vision
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 9B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - vision
+      - multimodal
+    description: Qwen3.5-9B (UD-Q4) 视觉模型，支持图片理解
+
+  - id: qwen3.5-9b-ud-q4-instruct-general
+    name: Qwen3.5-9B (UD-Q4) (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 9B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-9B (UD-Q4) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-9b-ud-q4-instruct-reasoning
+    name: Qwen3.5-9B (UD-Q4) (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 9B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-9B (UD-Q4) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-9b-ud-q4-thinking-general
+    name: Qwen3.5-9B (UD-Q4) (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 9B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-9B (UD-Q4) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-9b-ud-q4-thinking-coding
+    name: Qwen3.5-9B (UD-Q4) (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 9B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-9B (UD-Q4) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+
+  # ============ Qwen3.5-中参数 ============
+
+  - id: qwen3.5-27b
+    name: Qwen3.5-27B
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 248320
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - general
+    description: Qwen3.5 27B 纯语言模型版本，无视觉功能
+
+  - id: qwen3.5-27b-instruct-general
+    name: Qwen3.5-27B (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 248320
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-27B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-instruct-reasoning
+    name: Qwen3.5-27B (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 248320
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-27B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-thinking-general
+    name: Qwen3.5-27B (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 248320
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-27B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-thinking-coding
+    name: Qwen3.5-27B (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 248320
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-27B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+  - id: qwen3.5-27b-ud-q4
+    name: Qwen3.5-27B (UD-Q4)
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - general
+      - vision
+      - multimodal
+    description: Qwen3.5 中等规模模型，支持视觉多模态
+
+  - id: qwen3.5-27b-ud-q4-instruct-general
+    name: Qwen3.5-27B (UD-Q4) (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-27B (UD-Q4) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-ud-q4-instruct-reasoning
+    name: Qwen3.5-27B (UD-Q4) (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-27B (UD-Q4) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-ud-q4-thinking-general
+    name: Qwen3.5-27B (UD-Q4) (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-27B (UD-Q4) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-ud-q4-thinking-coding
+    name: Qwen3.5-27B (UD-Q4) (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-27B (UD-Q4) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+  - id: qwen3.5-27b-ud-q4-xl-1
+    name: Qwen3.5-27B (UD-Q4 XL) 更新版
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - general
+      - vision
+      - multimodal
+    description: Qwen3.5 27B 更新版本，支持视觉多模态
+
+  - id: qwen3.5-27b-ud-q4-xl-1-instruct-general
+    name: Qwen3.5-27B (UD-Q4 XL) 更新版 (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-27B (UD-Q4 XL) 更新版 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-ud-q4-xl-1-instruct-reasoning
+    name: Qwen3.5-27B (UD-Q4 XL) 更新版 (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-27B (UD-Q4 XL) 更新版 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-ud-q4-xl-1-thinking-general
+    name: Qwen3.5-27B (UD-Q4 XL) 更新版 (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-27B (UD-Q4 XL) 更新版 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-ud-q4-xl-1-thinking-coding
+    name: Qwen3.5-27B (UD-Q4 XL) 更新版 (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-27B (UD-Q4 XL) 更新版 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+  - id: qwen3.5-27b-vl
+    name: Qwen3.5-27B-VL
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - vision
+      - multimodal
+      - chat
+    description: Qwen3.5 27B 视觉多模态版本
+
+  - id: qwen3.5-27b-vl-instruct-general
+    name: Qwen3.5-27B-VL (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-27B-VL 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-vl-instruct-reasoning
+    name: Qwen3.5-27B-VL (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-27B-VL 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-vl-thinking-general
+    name: Qwen3.5-27B-VL (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-27B-VL 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-27b-vl-thinking-coding
+    name: Qwen3.5-27B-VL (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-27B-VL 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl
+    name: Qwen3.5-35B-A3B (UD-Q4 XL)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - reasoning
+      - chinese
+    description: 阿里巴巴 Qwen3.5 系列旗舰模型，支持 256K 上下文
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-instruct-general
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-instruct-reasoning
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-thinking-general
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-thinking-coding
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-1
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - reasoning
+      - chinese
+    description: Qwen3.5 35B 更新版
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-1-instruct-general
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-1-instruct-reasoning
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-1-thinking-general
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-35b-a3b-ud-q4-xl-1-thinking-coding
+    name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+  - id: qwen3.5-35b-a3b-thinking
+    name: Qwen3.5-35B-A3B 思考模式
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: true
+    tags:
+      - chat
+      - reasoning
+      - coding
+      - chinese
+    description: Qwen3.5 35B 思考模式，适合编码和复杂推理任务
+
+  - id: qwen3.5-35b-a3b-no-thinking
+    name: Qwen3.5-35B-A3B 非思考模式
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 131072
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    enable_thinking: false
+    tags:
+      - chat
+      - general
+      - chinese
+    description: Qwen3.5 35B 非思考模式，适合通用对话任务
+
+  - id: qwen3.5-35b-a3b-vision
+    name: Qwen3.5-35B-A3B 图片分析专用
+    type: vision-language-model
+    category: Qwen
+    format: gguf
+    size: 35B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.3
+    default_top_p: 0.9
+    default_top_k: 20
+    default_max_tokens: 8192
+    enable_thinking: false
+    tags:
+      - vision
+      - multimodal
+      - image-analysis
+    description: Qwen3.5 35B 图片分析专用配置，优化输出长度和分析质量
+
+
+  # ============ Qwen3.5-大参数 ============
+
+  - id: qwen3.5-122b-a10b
+    name: Qwen3.5-122B-A10B
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 122B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - reasoning
+      - chinese
+    description: 阿里巴巴 Qwen3.5 系列超大模型，122B参数，48层，24GB显存建议15层 offload
+
+  - id: qwen3.5-122b-a10b-instruct-general
+    name: Qwen3.5-122B-A10B (指令-通用)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 122B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+    description: Qwen3.5-122B-A10B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+
+  - id: qwen3.5-122b-a10b-instruct-reasoning
+    name: Qwen3.5-122B-A10B (指令-推理)
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 122B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: false
+    tags:
+      - chat
+      - chinese
+      - instruct
+      - reasoning
+    description: Qwen3.5-122B-A10B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-122b-a10b-thinking-general
+    name: Qwen3.5-122B-A10B (思考-通用)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 122B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - reasoning
+    description: Qwen3.5-122B-A10B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+
+  - id: qwen3.5-122b-a10b-thinking-coding
+    name: Qwen3.5-122B-A10B (思考-编码)
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 122B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 4096
+    enable_thinking: true
+    tags:
+      - chat
+      - chinese
+      - thinking
+      - coding
+    description: Qwen3.5-122B-A10B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+
+
+  # ============ Qwen3 ============
+
+  - id: qwen3-30b-a3b-instruct
+    name: Qwen3-30B-A3B-Instruct
+    type: language-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - instruct
+      - chat
+    description: Qwen3 指令微调版本
+
+  - id: qwen3-30b-a3b-thinking
+    name: Qwen3-30B-A3B-Thinking
+    type: reasoning-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: Qwen3 推理强化版本，支持深度思考
+
+  - id: deepseek-r1-0528-qwen3-8b-ud-q4-xl
+    name: DeepSeek-R1-0528-Qwen3-8B (UD-Q4 XL)
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 思考模型 Qwen3 8B
+
+
+  # ============ GLM ============
+
+  - id: glm-4.7-flash-ud-q4
+    name: GLM-4.7-Flash (UD-Q4) 通用版
+    type: language-model
+    category: GLM
+    format: gguf
+    size: 4.7B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - chat
+      - fast
+      - general
+    description: 智谱 GLM-4 快速版本 - 通用用例配置 (temp=1.0, top_p=0.95, min_p=0.01, 禁用重复惩罚)
+
+  - id: glm-4.7-flash-ud-q4-tools
+    name: GLM-4.7-Flash (UD-Q4) 工具调用版
+    type: language-model
+    category: GLM
+    format: gguf
+    size: 4.7B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.7
+    default_top_p: 1
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - chat
+      - fast
+      - tools
+      - function-calling
+    description: 智谱 GLM-4 快速版本 - 工具调用专用配置 (temp=0.7, top_p=1.0, min_p=0.01, 禁用重复惩罚)
+
+  - id: glm-4.7-flash-q5
+    name: GLM-4.7-Flash (Q5)
+    type: language-model
+    category: GLM
+    format: gguf
+    size: 4.7B
+    quantization: Q5_K_M
+    backend: llama
+    max_context: 262144
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - chat
+      - fast
+    description: 智谱 GLM-4 快速版本 Q5 量化 (temp=1.0, top_p=0.95, 禁用重复惩罚)
+
+  - id: glm-4-32b-0414-ud-q4-xl
+    name: GLM-4-32B-0414 (UD-Q4 XL)
+    type: language-model
+    category: GLM
+    format: gguf
+    size: 32B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - chat
+      - general
+      - chinese
+    description: 智谱 GLM-4 32B 模型
+
+  - id: glm-4.6v-flash
+    name: GLM-4.6V-Flash
+    type: vision-language-model
+    category: GLM
+    format: gguf
+    size: 4.6B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - vision
+      - multimodal
+      - fast
+    description: 智谱 GLM-4V 快速版本
+
+  - id: glm-4.1v-9b-thinking
+    name: GLM-4.1V-9B-Thinking
+    type: vision-language-model
+    category: GLM
+    format: gguf
+    size: 9B
+    quantization: Q5_K_M
+    backend: llama
+    max_context: 248320
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - vision
+      - multimodal
+      - thinking
+    description: 智谱 GLM-4V 思考版本
+
+
+  # ============ DeepSeek ============
+
+  - id: deepseek-r1-distill-llama-8b-ud-q4-xl
+    name: DeepSeek-R1-Distill-Llama-8B (UD-Q4 XL)
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 8B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 蒸馏版 Llama 8B
+
+  - id: deepseek-r1-distill-qwen-14b-q4-m
+    name: DeepSeek-R1-Distill-Qwen-14B (Q4 M)
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 14B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 蒸馏版 Qwen 14B
+
+  - id: deepseek-r1-distill-qwen-32b-q4-m
+    name: DeepSeek-R1-Distill-Qwen-32B (Q4 M)
+    type: reasoning-model
+    category: DeepSeek
+    format: gguf
+    size: 32B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: DeepSeek R1 蒸馏版 Qwen 32B
+
+
+  # ============ Gemma ============
+
+  - id: gemma-3-12b-it-ud-q4-xl
+    name: Gemma-3-12B-IT (UD-Q4 XL)
+    type: vision-language-model
+    category: Gemma
+    format: gguf
+    size: 12B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - vision
+      - multimodal
+      - chat
+    description: Google Gemma 3 12B 指令微调视觉模型
+
+  - id: gemma-3-27b-it-ud-q4-xl
+    name: Gemma-3-27B-IT (UD-Q4 XL)
+    type: vision-language-model
+    category: Gemma
+    format: gguf
+    size: 27B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - vision
+      - multimodal
+      - chat
+    description: Google Gemma 3 27B 指令微调视觉模型
+
+
+  # ============ 其他模型 ============
+
+  - id: ernie-4.5-21b-thinking
+    name: ERNIE-4.5-21B-Thinking
+    type: reasoning-model
+    category: ERNIE
+    format: gguf
+    size: 21B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - reasoning
+      - thinking
+      - chinese
+    description: 百度文心ERNIE 4.5 推理版本
+
+  - id: phi-4-reasoning-plus-ud-q4-xl
+    name: Phi-4-Reasoning-Plus (UD-Q4 XL)
+    type: reasoning-model
+    category: Phi
+    format: gguf
+    size: 14B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 32768
+    default_temp: 1
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - reasoning
+      - thinking
+      - chain-of-thought
+    description: Microsoft Phi-4 推理增强模型
+
+  - id: hy-mt1.5-1.8b-q4-m
+    name: HY-MT1.5-1.8B (Q4 M)
+    type: language-model
+    category: HY
+    format: gguf
+    size: 1.8B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+    description: HY MT1.5 小型翻译模型，高并发处理
+
+  - id: hy-mt1.5-7b-q4-m
+    name: HY-MT1.5-7B (Q4 M)
+    type: language-model
+    category: HY
+    format: gguf
+    size: 7B
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+    description: HY MT1.5 中型翻译模型，高并发处理
+
+  - id: internvl3-8b-q5
+    name: InternVL3-8B (Q5)
+    type: vision-language-model
+    category: InternVL
+    format: gguf
+    size: 8B
+    quantization: Q5_K_M
+    backend: llama
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - vision
+      - multimodal
+      - chinese
+    description: 智谱 InternVL3 视觉模型
+
+  - id: qwen-coder-30b-a3b-instruct
+    name: Qwen-Coder-30B-A3B-Instruct
+    type: code-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 262144
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - coding
+      - programming
+      - developer
+    description: 阿里巴巴代码专用模型
+
+  - id: qwen-coder-30b-a3b-instruct-1m
+    name: Qwen-Coder-30B-A3B-Instruct-1M
+    type: code-model
+    category: Qwen
+    format: gguf
+    size: 30B
+    quantization: Q4_K_XL
+    backend: llama
+    max_context: 1048576
+    default_temp: 0.6
+    default_top_p: 0.95
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - coding
+      - programming
+      - developer
+      - long-context
+    description: 阿里巴巴代码专用模型 1M 上下文
+
+  - id: sglang-qwen2.5-7b
+    name: SGLang-Qwen2.5-7B
+    type: language-model
+    category: Qwen
+    format: huggingface
+    size: 7B
+    quantization: none
+    backend: sglang
+    max_context: 32768
+    default_temp: 0.7
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - chat
+      - general
+      - chinese
+    description: Qwen2.5 7B 使用 SGLang 后端加速推理
+
+  - id: snowflake-arctic-embed-l
+    name: Snowflake Arctic Embed L
+    type: embedding-model
+    category: Snowflake
+    format: gguf
+    size: 335M
+    quantization: Q4_K_M
+    backend: llama
+    max_context: 512
+    default_temp: 0
+    default_top_p: 0.8
+    default_top_k: 20
+    default_max_tokens: 131072
+    tags:
+      - embedding
+      - retrieval
+      - vector
+    description: Snowflake 文本嵌入模型，用于向量检索
+
+# ============ 模型类型定义 ============
+model_types:
+  language-model:
+    icon: "💬"
+    color: "#3b82f6"
     description: 大语言模型
-- id: qwen3.5-0.8b-vision
-  name: Qwen3.5-0.8B-Vision
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 0.8B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - vision
-  - multimodal
-  description: Qwen3.5-0.8B 视觉模型，支持图片理解
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
+  vision-language-model:
+    icon: "👁️"
+    color: "#8b5cf6"
     description: 视觉语言模型
-- id: qwen3.5-0.8b-instruct-general
-  name: Qwen3.5-0.8B (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 0.8B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-0.8B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-0.8b-instruct-reasoning
-  name: Qwen3.5-0.8B (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 0.8B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-0.8B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-2b
-  name: Qwen3.5-2B
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 2B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  description: 阿里巴巴 Qwen3.5 系列小型模型，平衡性能与速度
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-2b-vision
-  name: Qwen3.5-2B-Vision
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 2B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - vision
-  - multimodal
-  description: Qwen3.5-2B 视觉模型，支持图片理解
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-2b-instruct-general
-  name: Qwen3.5-2B (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 2B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-2B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-2b-instruct-reasoning
-  name: Qwen3.5-2B (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 2B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-2B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-4b-ud-q4
-  name: Qwen3.5-4B (UD-Q4)
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 4B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - general
-  - chinese
-  - vision
-  - multimodal
-  description: Qwen3.5 4B 轻量级模型，支持视觉多模态
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-4b-ud-q4-vision
-  name: Qwen3.5-4B (UD-Q4)-Vision
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 4B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - vision
-  - multimodal
-  description: Qwen3.5-4B (UD-Q4) 视觉模型，支持图片理解
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-4b-ud-q4-instruct-general
-  name: Qwen3.5-4B (UD-Q4) (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 4B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-4B (UD-Q4) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-4b-ud-q4-instruct-reasoning
-  name: Qwen3.5-4B (UD-Q4) (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 4B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-4B (UD-Q4) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-4b-ud-q4-thinking-general
-  name: Qwen3.5-4B (UD-Q4) (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 4B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-4B (UD-Q4) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-4b-ud-q4-thinking-coding
-  name: Qwen3.5-4B (UD-Q4) (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 4B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-4B (UD-Q4) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-9b-ud-q4
-  name: Qwen3.5-9B (UD-Q4)
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 9B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - general
-  - chinese
-  - vision
-  - multimodal
-  description: Qwen3.5 小型模型，支持视觉多模态
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-9b-ud-q4-vision
-  name: Qwen3.5-9B (UD-Q4)-Vision
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 9B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - vision
-  - multimodal
-  description: Qwen3.5-9B (UD-Q4) 视觉模型，支持图片理解
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-9b-ud-q4-instruct-general
-  name: Qwen3.5-9B (UD-Q4) (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 9B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-9B (UD-Q4) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-9b-ud-q4-instruct-reasoning
-  name: Qwen3.5-9B (UD-Q4) (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 9B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-9B (UD-Q4) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-9b-ud-q4-thinking-general
-  name: Qwen3.5-9B (UD-Q4) (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 9B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-9B (UD-Q4) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-9b-ud-q4-thinking-coding
-  name: Qwen3.5-9B (UD-Q4) (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 9B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-9B (UD-Q4) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b
-  name: Qwen3.5-27B
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 248320
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - general
-  description: Qwen3.5 27B 纯语言模型版本，无视觉功能
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-instruct-general
-  name: Qwen3.5-27B (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 248320
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-27B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-instruct-reasoning
-  name: Qwen3.5-27B (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 248320
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-27B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-thinking-general
-  name: Qwen3.5-27B (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 248320
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-27B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b-thinking-coding
-  name: Qwen3.5-27B (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 248320
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-27B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b-ud-q4
-  name: Qwen3.5-27B (UD-Q4)
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - general
-  - vision
-  - multimodal
-  description: Qwen3.5 中等规模模型，支持视觉多模态
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-27b-ud-q4-instruct-general
-  name: Qwen3.5-27B (UD-Q4) (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-27B (UD-Q4) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-ud-q4-instruct-reasoning
-  name: Qwen3.5-27B (UD-Q4) (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-27B (UD-Q4) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-ud-q4-thinking-general
-  name: Qwen3.5-27B (UD-Q4) (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-27B (UD-Q4) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b-ud-q4-thinking-coding
-  name: Qwen3.5-27B (UD-Q4) (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-27B (UD-Q4) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b-ud-q4-xl-1
-  name: Qwen3.5-27B (UD-Q4 XL) 更新版
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - general
-  - vision
-  - multimodal
-  description: Qwen3.5 27B 更新版本，支持视觉多模态
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-27b-ud-q4-xl-1-instruct-general
-  name: Qwen3.5-27B (UD-Q4 XL) 更新版 (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-27B (UD-Q4 XL) 更新版 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-ud-q4-xl-1-instruct-reasoning
-  name: Qwen3.5-27B (UD-Q4 XL) 更新版 (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-27B (UD-Q4 XL) 更新版 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-ud-q4-xl-1-thinking-general
-  name: Qwen3.5-27B (UD-Q4 XL) 更新版 (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-27B (UD-Q4 XL) 更新版 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b-ud-q4-xl-1-thinking-coding
-  name: Qwen3.5-27B (UD-Q4 XL) 更新版 (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-27B (UD-Q4 XL) 更新版 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b-vl
-  name: Qwen3.5-27B-VL
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - vision
-  - multimodal
-  - chat
-  description: Qwen3.5 27B 视觉多模态版本
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-27b-vl-instruct-general
-  name: Qwen3.5-27B-VL (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-27B-VL 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-vl-instruct-reasoning
-  name: Qwen3.5-27B-VL (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-27B-VL 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-27b-vl-thinking-general
-  name: Qwen3.5-27B-VL (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-27B-VL 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-27b-vl-thinking-coding
-  name: Qwen3.5-27B-VL (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-27B-VL 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-35b-a3b-ud-q4-xl
-  name: Qwen3.5-35B-A3B (UD-Q4 XL)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - reasoning
-  - chinese
-  description: 阿里巴巴 Qwen3.5 系列旗舰模型，支持 256K 上下文
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-instruct-general
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: loaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-instruct-reasoning
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-thinking-general
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-thinking-coding
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-1
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - reasoning
-  - chinese
-  description: Qwen3.5 35B 更新版
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-1-instruct-general
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-1-instruct-reasoning
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-1-thinking-general
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-35b-a3b-ud-q4-xl-1-thinking-coding
-  name: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-35B-A3B (UD-Q4 XL) 更新版 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-35b-a3b-thinking
-  name: Qwen3.5-35B-A3B 思考模式
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: true
-  tags:
-  - chat
-  - reasoning
-  - coding
-  - chinese
-  description: Qwen3.5 35B 思考模式，适合编码和复杂推理任务
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-no-thinking
-  name: Qwen3.5-35B-A3B 非思考模式
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 131072
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: false
-  tags:
-  - chat
-  - general
-  - chinese
-  description: Qwen3.5 35B 非思考模式，适合通用对话任务
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-35b-a3b-vision
-  name: Qwen3.5-35B-A3B 图片分析专用
-  type: vision-language-model
-  category: Qwen
-  format: gguf
-  size: 35B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.3
-  default_top_p: 0.9
-  default_top_k: 20
-  default_max_tokens: 8192
-  enable_thinking: false
-  tags:
-  - vision
-  - multimodal
-  - image-analysis
-  description: Qwen3.5 35B 图片分析专用配置，优化输出长度和分析质量
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen3.5-122b-a10b
-  name: Qwen3.5-122B-A10B
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 122B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - reasoning
-  - chinese
-  description: 阿里巴巴 Qwen3.5 系列超大模型，122B参数，48层，24GB显存建议15层 offload
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-122b-a10b-instruct-general
-  name: Qwen3.5-122B-A10B (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 122B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  description: Qwen3.5-122B-A10B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-122b-a10b-instruct-reasoning
-  name: Qwen3.5-122B-A10B (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 122B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: false
-  tags:
-  - chat
-  - chinese
-  - instruct
-  - reasoning
-  description: Qwen3.5-122B-A10B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3.5-122b-a10b-thinking-general
-  name: Qwen3.5-122B-A10B (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 122B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - reasoning
-  description: Qwen3.5-122B-A10B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3.5-122b-a10b-thinking-coding
-  name: Qwen3.5-122B-A10B (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 122B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 4096
-  enable_thinking: true
-  tags:
-  - chat
-  - chinese
-  - thinking
-  - coding
-  description: Qwen3.5-122B-A10B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: qwen3-30b-a3b-instruct
-  name: Qwen3-30B-A3B-Instruct
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 30B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - instruct
-  - chat
-  description: Qwen3 指令微调版本
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: qwen3-30b-a3b-thinking
-  name: Qwen3-30B-A3B-Thinking
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 30B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - reasoning
-  - thinking
-  - chain-of-thought
-  description: Qwen3 推理强化版本，支持深度思考
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: glm-4.7-flash-ud-q4
-  name: GLM-4.7-Flash (UD-Q4) 通用版
-  type: language-model
-  category: GLM
-  format: gguf
-  size: 4.7B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - chat
-  - fast
-  - general
-  description: 智谱 GLM-4 快速版本 - 通用用例配置 (temp=1.0, top_p=0.95, min_p=0.01, 禁用重复惩罚)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: glm-4.7-flash-ud-q4-tools
-  name: GLM-4.7-Flash (UD-Q4) 工具调用版
-  type: language-model
-  category: GLM
-  format: gguf
-  size: 4.7B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.7
-  default_top_p: 1
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - chat
-  - fast
-  - tools
-  - function-calling
-  description: 智谱 GLM-4 快速版本 - 工具调用专用配置 (temp=0.7, top_p=1.0, min_p=0.01, 禁用重复惩罚)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: glm-4.7-flash-q5
-  name: GLM-4.7-Flash (Q5)
-  type: language-model
-  category: GLM
-  format: gguf
-  size: 4.7B
-  quantization: Q5_K_M
-  backend: llama
-  max_context: 262144
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - chat
-  - fast
-  description: 智谱 GLM-4 快速版本 Q5 量化 (temp=1.0, top_p=0.95, 禁用重复惩罚)
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: glm-4-32b-0414-ud-q4-xl
-  name: GLM-4-32B-0414 (UD-Q4 XL)
-  type: language-model
-  category: GLM
-  format: gguf
-  size: 32B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - chat
-  - general
-  - chinese
-  description: 智谱 GLM-4 32B 模型
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: glm-4.6v-flash
-  name: GLM-4.6V-Flash
-  type: vision-language-model
-  category: GLM
-  format: gguf
-  size: 4.6B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - vision
-  - multimodal
-  - fast
-  description: 智谱 GLM-4V 快速版本
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: glm-4.1v-9b-thinking
-  name: GLM-4.1V-9B-Thinking
-  type: vision-language-model
-  category: GLM
-  format: gguf
-  size: 9B
-  quantization: Q5_K_M
-  backend: llama
-  max_context: 248320
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - vision
-  - multimodal
-  - thinking
-  description: 智谱 GLM-4V 思考版本
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: deepseek-r1-0528-qwen3-8b-ud-q4-xl
-  name: DeepSeek-R1-0528-Qwen3-8B (UD-Q4 XL)
-  type: reasoning-model
-  category: DeepSeek
-  format: gguf
-  size: 8B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - reasoning
-  - thinking
-  - chain-of-thought
-  description: DeepSeek R1 思考模型 Qwen3 8B
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: deepseek-r1-distill-llama-8b-ud-q4-xl
-  name: DeepSeek-R1-Distill-Llama-8B (UD-Q4 XL)
-  type: reasoning-model
-  category: DeepSeek
-  format: gguf
-  size: 8B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - reasoning
-  - thinking
-  - chain-of-thought
-  description: DeepSeek R1 蒸馏版 Llama 8B
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: deepseek-r1-distill-qwen-14b-q4-m
-  name: DeepSeek-R1-Distill-Qwen-14B (Q4 M)
-  type: reasoning-model
-  category: DeepSeek
-  format: gguf
-  size: 14B
-  quantization: Q4_K_M
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - reasoning
-  - thinking
-  - chain-of-thought
-  description: DeepSeek R1 蒸馏版 Qwen 14B
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: deepseek-r1-distill-qwen-32b-q4-m
-  name: DeepSeek-R1-Distill-Qwen-32B (Q4 M)
-  type: reasoning-model
-  category: DeepSeek
-  format: gguf
-  size: 32B
-  quantization: Q4_K_M
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - reasoning
-  - thinking
-  - chain-of-thought
-  description: DeepSeek R1 蒸馏版 Qwen 32B
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: ernie-4.5-21b-thinking
-  name: ERNIE-4.5-21B-Thinking
-  type: reasoning-model
-  category: ERNIE
-  format: gguf
-  size: 21B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - reasoning
-  - thinking
-  - chinese
-  description: 百度文心ERNIE 4.5 推理版本
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: gemma-3-12b-it-ud-q4-xl
-  name: Gemma-3-12B-IT (UD-Q4 XL)
-  type: vision-language-model
-  category: Gemma
-  format: gguf
-  size: 12B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - vision
-  - multimodal
-  - chat
-  description: Google Gemma 3 12B 指令微调视觉模型
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: gemma-3-27b-it-ud-q4-xl
-  name: Gemma-3-27B-IT (UD-Q4 XL)
-  type: vision-language-model
-  category: Gemma
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - vision
-  - multimodal
-  - chat
-  description: Google Gemma 3 27B 指令微调视觉模型
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: phi-4-reasoning-plus-ud-q4-xl
-  name: Phi-4-Reasoning-Plus (UD-Q4 XL)
-  type: reasoning-model
-  category: Phi
-  format: gguf
-  size: 14B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 32768
-  default_temp: 1
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - reasoning
-  - thinking
-  - chain-of-thought
-  description: Microsoft Phi-4 推理增强模型
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 🧠
-    color: '#f59e0b'
-    description: 推理强化模型
-- id: hy-mt1.5-1.8b-q4-m
-  name: HY-MT1.5-1.8B (Q4 M)
-  type: language-model
-  category: HY
-  format: gguf
-  size: 1.8B
-  quantization: Q4_K_M
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags: []
-  description: HY MT1.5 小型翻译模型，高并发处理
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: hy-mt1.5-7b-q4-m
-  name: HY-MT1.5-7B (Q4 M)
-  type: language-model
-  category: HY
-  format: gguf
-  size: 7B
-  quantization: Q4_K_M
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags: []
-  description: HY MT1.5 中型翻译模型，高并发处理
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: internvl3-8b-q5
-  name: InternVL3-8B (Q5)
-  type: vision-language-model
-  category: InternVL
-  format: gguf
-  size: 8B
-  quantization: Q5_K_M
-  backend: llama
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - vision
-  - multimodal
-  - chinese
-  description: 智谱 InternVL3 视觉模型
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 👁️
-    color: '#8b5cf6'
-    description: 视觉语言模型
-- id: qwen-coder-30b-a3b-instruct
-  name: Qwen-Coder-30B-A3B-Instruct
-  type: code-model
-  category: Qwen
-  format: gguf
-  size: 30B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 262144
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - coding
-  - programming
-  - developer
-  description: 阿里巴巴代码专用模型
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💻
-    color: '#10b981'
+  code-model:
+    icon: "💻"
+    color: "#10b981"
     description: 代码专用模型
-- id: qwen-coder-30b-a3b-instruct-1m
-  name: Qwen-Coder-30B-A3B-Instruct-1M
-  type: code-model
-  category: Qwen
-  format: gguf
-  size: 30B
-  quantization: Q4_K_XL
-  backend: llama
-  max_context: 1048576
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - coding
-  - programming
-  - developer
-  - long-context
-  description: 阿里巴巴代码专用模型 1M 上下文
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 💻
-    color: '#10b981'
-    description: 代码专用模型
-- id: sglang-qwen2.5-7b
-  name: SGLang-Qwen2.5-7B
-  type: language-model
-  category: Qwen
-  format: huggingface
-  size: 7B
-  quantization: none
-  backend: sglang
-  max_context: 32768
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - chat
-  - general
-  - chinese
-  description: Qwen2.5 7B 使用 SGLang 后端加速推理
-  status: unloaded
-  file_exists: false
-  memory_usage: null
-  type_info:
-    icon: 💬
-    color: '#3b82f6'
-    description: 大语言模型
-- id: snowflake-arctic-embed-l
-  name: Snowflake Arctic Embed L
-  type: embedding-model
-  category: Snowflake
-  format: gguf
-  size: 335M
-  quantization: Q4_K_M
-  backend: llama
-  max_context: 512
-  default_temp: 0
-  default_top_p: 0.8
-  default_top_k: 20
-  default_max_tokens: 131072
-  enable_thinking: null
-  tags:
-  - embedding
-  - retrieval
-  - vector
-  description: Snowflake 文本嵌入模型，用于向量检索
-  status: unloaded
-  file_exists: true
-  memory_usage: null
-  type_info:
-    icon: 📊
-    color: '#ec4899'
+  reasoning-model:
+    icon: "🧠"
+    color: "#f59e0b"
+    description: 推理强化模型
+  embedding-model:
+    icon: "📊"
+    color: "#ec4899"
     description: 嵌入向量模型

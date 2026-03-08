@@ -462,51 +462,19 @@ class LlamaBackend(InferenceBackend):
                     
                     print(f"llama-server response: {result}")
                     
-                    end_time = time()
-                    
-                    message = result.get("choices", [{}])[0].get("message", {})
-                    content = message.get("content", "")
-                    usage = result.get("usage", {})
-                    
-                    # deepseek 格式的思考内容在 reasoning_content 字段
-                    thinking = message.get("reasoning_content", "")
-                    
-                    # 提取 tool_calls（如果存在）
-                    tool_calls = message.get("tool_calls")
-                    
-                    # 如果没有 tool_calls，尝试从 content 解析
-                    if not tool_calls and content:
-                        parsed_calls = parse_tool_calls(content)
-                        if parsed_calls:
-                            tool_calls = parsed_calls
-                            # 如果 content 中只有工具调用，清空 content
-                            # 保留非工具调用部分的文本
-                    
-                    # 构建 message 字典
-                    message_dict = {
-                        "role": "assistant",
-                        "content": content,
-                        "thinking": thinking
-                    }
-                    
-                    # 如果有 tool_calls，添加到响应
-                    if tool_calls:
-                        message_dict["tool_calls"] = tool_calls
+                    # 直接透传 llama-server 的响应，保持原始数据结构
+                    # 只添加 thinking 字段到 message（如果存在 reasoning_content）
+                    if result.get("choices"):
+                        message = result["choices"][0].get("message", {})
+                        if message.get("reasoning_content"):
+                            message["thinking"] = message.pop("reasoning_content")
                     
                     return ChatResponse(
                         id=result.get("id", "chatcmpl-unknown"),
                         created=result.get("created", int(start_time)),
                         model=result.get("model", self._model_info.name if self._model_info else "unknown"),
-                        choices=[{
-                            "index": 0,
-                            "message": message_dict,
-                            "finish_reason": result.get("choices", [{}])[0].get("finish_reason", "stop")
-                        }],
-                        usage={
-                            "prompt_tokens": usage.get("prompt_tokens", 0),
-                            "completion_tokens": usage.get("completion_tokens", 0),
-                            "total_tokens": usage.get("total_tokens", 0)
-                        }
+                        choices=result.get("choices", []),
+                        usage=result.get("usage")
                     )
             except Exception as e:
                 if attempt < max_retries - 1:
