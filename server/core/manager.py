@@ -21,10 +21,15 @@ class ModelConfig:
     default_temp: float = 0.7
     default_top_p: float = 0.8
     default_top_k: int = 20
-    default_max_tokens: int = 4096
+    default_max_tokens: int = 131072
+    min_p: Optional[float] = None
+    repeat_penalty: Optional[float] = None
     enable_thinking: Optional[bool] = None
     parallel: int = 1
     batch_size: int = 2048
+    gpu_layers: int = 99
+    cache_type_k: Optional[str] = None
+    cache_type_v: Optional[str] = None
     tags: List[str] = field(default_factory=list)
     description: str = ""
     status: str = "unloaded"
@@ -86,10 +91,13 @@ class ModelManager:
                 default_temp=m.get('default_temp', 0.7),
                 default_top_p=m.get('default_top_p', 0.8),
                 default_top_k=m.get('default_top_k', 20),
-                default_max_tokens=m.get('default_max_tokens', 4096),
+                default_max_tokens=m.get('default_max_tokens', 131072),
                 enable_thinking=m.get('enable_thinking'),
                 parallel=m.get('parallel', 1),
                 batch_size=m.get('batch_size', 512),
+                gpu_layers=m.get('gpu_layers', 99),
+                cache_type_k=m.get('cache_type_k'),
+                cache_type_v=m.get('cache_type_v'),
                 tags=m.get('tags', []),
                 description=m.get('description', ''),
                 mmproj=mmproj_path

@@ -145,6 +145,14 @@ class LlamaBackend(InferenceBackend):
                 "--cont-batching"
             ]
             
+            # 添加 KV Cache 量化参数
+            cache_type_k = model_config.get("cache_type_k")
+            cache_type_v = model_config.get("cache_type_v")
+            if cache_type_k:
+                cmd.extend(["--cache-type-k", cache_type_k])
+            if cache_type_v:
+                cmd.extend(["--cache-type-v", cache_type_v])
+            
             print(f"[DEBUG] Concurrency config: parallel={parallel}, batch_size={batch_size}")
             
             # 如果是推理模型，启用思考模式
@@ -256,11 +264,15 @@ class LlamaBackend(InferenceBackend):
                 
                 # 尝试检查服务器是否就绪
                 try:
-                    await self._wait_for_server(2)  # 每次检查 2 秒
+                    await self._wait_for_server(10)  # 每次检查 10 秒
                     server_ready = True
                     break
-                except:
+                except TimeoutError:
+                    # 超时，继续等待
                     pass
+                except Exception as e:
+                    # 其他错误，记录但继续等待
+                    print(f"[DEBUG] Wait error: {e}")
                 
                 await asyncio.sleep(1)
             
@@ -283,21 +295,43 @@ class LlamaBackend(InferenceBackend):
             if self._model_info:
                 self._model_info.status = ModelStatus.ERROR
     
-    async def _wait_for_server(self, timeout: int = 30) -> bool:
-        """等待服务器启动"""
+    async def _wait_for_server(self, timeout: int = 120) -> bool:
+        """等待服务器启动并加载模型完成"""
         import httpx
         
         print(f"_wait_for_server: waiting for {self._server_url} (timeout={timeout}s)")
         start_time = datetime.now()
+        server_started = False
+        
         while (datetime.now() - start_time).seconds < timeout:
             try:
                 async with httpx.AsyncClient() as client:
-                    # 只检查健康端点
+                    # 先检查健康端点
                     health_response = await client.get(f"{self._server_url}/health", timeout=2.0)
                     if health_response.status_code == 200:
-                        elapsed = (datetime.now() - start_time).seconds
-                        print(f"_wait_for_server: server ready after {elapsed}s")
-                        return True
+                        if not server_started:
+                            elapsed = (datetime.now() - start_time).seconds
+                            print(f"_wait_for_server: server started after {elapsed}s, waiting for model load...")
+                            server_started = True
+                        # 服务器已启动，再检查模型是否加载完成
+                        # 通过发送一个简单请求来验证
+                        try:
+                            test_response = await client.post(
+                                f"{self._server_url}/v1/chat/completions",
+                                json={
+                                    "model": "test",
+                                    "messages": [{"role": "user", "content": "test"}],
+                                    "max_tokens": 1
+                                },
+                                timeout=5.0
+                            )
+                            # 如果返回 200 或 4xx 错误（不是 503），说明模型已加载
+                            if test_response.status_code != 503:
+                                elapsed = (datetime.now() - start_time).seconds
+                                print(f"_wait_for_server: model ready after {elapsed}s")
+                                return True
+                        except:
+                            pass
             except Exception as e:
                 pass
             await asyncio.sleep(1)
@@ -320,9 +354,13 @@ class LlamaBackend(InferenceBackend):
                 "temperature": config.get("temperature", 0.7),
                 "top_p": config.get("top_p", 0.8),
                 "top_k": config.get("top_k", 20),
+                "min_p": config.get("min_p"),
                 "max_tokens": config.get("max_tokens", 4096),
                 "stream": True
             }
+            # 只在 min_p 不为 None 时添加
+            if payload["min_p"] is None:
+                del payload["min_p"]
             
             async with client.stream(
                 "POST",
@@ -372,9 +410,14 @@ class LlamaBackend(InferenceBackend):
             "temperature": config.get("temperature", 0.7),
             "top_p": config.get("top_p", 0.8),
             "top_k": config.get("top_k", 20),
+            "min_p": config.get("min_p"),
             "max_tokens": config.get("max_tokens", 4096),
             "stream": False
         }
+        
+        # 只在 min_p 不为 None 时添加
+        if payload["min_p"] is None:
+            del payload["min_p"]
         
         # 支持 tools 参数
         tools = config.get("tools")
@@ -504,9 +547,14 @@ class LlamaBackend(InferenceBackend):
             "temperature": config.get("temperature", 0.7),
             "top_p": config.get("top_p", 0.8),
             "top_k": config.get("top_k", 20),
+            "min_p": config.get("min_p"),
             "max_tokens": config.get("max_tokens", 4096),
             "stream": True
         }
+        
+        # 只在 min_p 不为 None 时添加
+        if payload["min_p"] is None:
+            del payload["min_p"]
         
         # 支持 tools 参数
         tools = config.get("tools")

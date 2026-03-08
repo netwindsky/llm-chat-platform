@@ -18,6 +18,9 @@ class BackendManager:
         """加载模型"""
         print(f"load_model: starting for {model_id}")
         
+        # 获取新模型的 max_context
+        new_max_context = model_config.get("max_context", 32768)
+        
         # 先检查是否已加载（不需要锁）
         if model_id in self._loaded_models:
             print(f"load_model: already loaded {model_id}")
@@ -26,7 +29,23 @@ class BackendManager:
         # 先确定需要卸载哪些模型（在锁内）
         async with self._lock:
             models_to_unload = []
+            
+            # 检查当前模型的 max_context 是否与新模型相同
+            need_restart = False
             if self._current_model and self._current_model != model_id:
+                current_backend = self._loaded_models.get(self._current_model)
+                if current_backend:
+                    current_model_info = await current_backend.get_model_info()
+                    if current_model_info:
+                        current_max_context = current_model_info.max_context
+                        if current_max_context != new_max_context:
+                            print(f"load_model: max_context changed from {current_max_context} to {new_max_context}, need restart")
+                            need_restart = True
+                
+                # 如果 max_context 不同，需要重启 llama-server，卸载当前模型
+                if need_restart:
+                    models_to_unload.append(self._current_model)
+                
                 models_to_unload.append(self._current_model)
             
             # 检查是否已达到最大加载数量

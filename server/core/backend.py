@@ -44,7 +44,7 @@ class ChatRequest:
     temperature: float = 0.7
     top_p: float = 0.8
     top_k: int = 20
-    max_tokens: int = 4096
+    max_tokens: int = 131072
     stream: bool = False
     stop: Optional[List[str]] = None
 

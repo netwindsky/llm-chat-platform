@@ -36,9 +36,13 @@ class ChatRequest(BaseModel):
     temperature: Optional[float] = 0.7
     top_p: Optional[float] = 0.8
     top_k: Optional[int] = 20
-    max_tokens: Optional[int] = 4096
+    min_p: Optional[float] = None
+    max_tokens: Optional[int] = 131072
     stream: Optional[bool] = False
     stop: Optional[List[str]] = None
+    presence_penalty: Optional[float] = None
+    frequency_penalty: Optional[float] = None
+    repeat_penalty: Optional[float] = None
     tools: Optional[List[Dict[str, Any]]] = None
     tool_choice: Optional[Union[str, Dict[str, Any]]] = None
 
@@ -154,16 +158,32 @@ async def chat_completions(request: ChatRequest):
         print(f"Converted messages: {len(messages)} (filtered from {len(request.messages)})")
         
         # 使用请求中的值或模型配置中的默认值
-        max_tokens = request.max_tokens if request.max_tokens != 4096 else default_max_tokens
-        print(f"Using max_tokens={max_tokens} (request={request.max_tokens}, default={default_max_tokens})")
+        # temperature: 优先使用请求值，否则使用模型配置的 default_temp
+        temperature = request.temperature if request.temperature != 0.7 else (model_config.default_temp if model_config else 0.7)
+        # top_p: 优先使用请求值，否则使用模型配置的 default_top_p
+        top_p = request.top_p if request.top_p != 0.8 else (model_config.default_top_p if model_config else 0.8)
+        # top_k: 优先使用请求值，否则使用模型配置的 default_top_k
+        top_k = request.top_k if request.top_k != 20 else (model_config.default_top_k if model_config else 20)
+        # min_p: 优先使用请求值，否则使用模型配置的 min_p
+        min_p = request.min_p if request.min_p is not None else (model_config.min_p if model_config else None)
+        # max_tokens: 优先使用请求值（如果不是默认值131072），否则使用模型配置的 default_max_tokens
+        max_tokens = request.max_tokens if request.max_tokens != 131072 else default_max_tokens
+        # repeat_penalty: 优先使用请求值，否则使用模型配置的 repeat_penalty
+        repeat_penalty = request.repeat_penalty if request.repeat_penalty is not None else (model_config.repeat_penalty if model_config else None)
+        
+        print(f"Using temperature={temperature}, top_p={top_p}, top_k={top_k}, min_p={min_p}, max_tokens={max_tokens}, repeat_penalty={repeat_penalty}")
         
         config = {
-            "temperature": request.temperature,
-            "top_p": request.top_p,
-            "top_k": request.top_k,
-            "max_tokens": max_tokens
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "min_p": min_p,
+            "max_tokens": max_tokens,
+            "presence_penalty": request.presence_penalty,
+            "frequency_penalty": request.frequency_penalty,
+            "repeat_penalty": repeat_penalty
         }
-        
+
         # 传递 tools 参数
         if request.tools:
             config["tools"] = request.tools
@@ -205,6 +225,11 @@ async def chat_completions(request: ChatRequest):
                                 "finish_reason": chunk.choices[0].get("finish_reason") if chunk.choices else None
                             }]
                         }
+                        
+                        # 如果有 usage 信息，添加到响应中
+                        if chunk.usage and chunk.usage.get("total_tokens", 0) > 0:
+                            chunk_data["usage"] = chunk.usage
+                        
                         yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
                     yield "data: [DONE]\n\n"
                 except Exception as e:

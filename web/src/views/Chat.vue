@@ -4,19 +4,46 @@
     <header class="chat-header">
       <div class="header-brand">
         <div class="brand-icon">
-          <svg viewBox="0 0 32 32" fill="none">
-            <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2"/>
-            <path d="M10 16l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg
+            viewBox="0 0 32 32"
+            fill="none"
+          >
+            <circle
+              cx="16"
+              cy="16"
+              r="14"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <path
+              d="M10 16l4 4 8-8"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </div>
         <h1>LLM Platform</h1>
       </div>
       
       <div class="header-center">
-        <div class="model-indicator" v-if="selectedModel">
-          <span class="indicator-dot" :class="{ active: currentModelConfig?.status === 'loaded' }"></span>
+        <div
+          v-if="selectedModel"
+          class="model-indicator"
+        >
+          <span
+            class="indicator-dot"
+            :class="{ active: currentModelConfig?.status === 'loaded' }"
+          />
           <span class="model-name">{{ currentModelConfig?.name || '未选择模型' }}</span>
-          <el-tag v-if="currentModelConfig?.status === 'loaded'" size="small" class="status-tag">Ready</el-tag>
+          <el-tag
+            v-if="currentModelConfig?.status === 'loaded'"
+            size="small"
+            class="status-tag"
+          >
+            Ready
+          </el-tag>
         </div>
       </div>
       
@@ -24,9 +51,9 @@
         <el-select 
           v-model="selectedModel" 
           placeholder="选择模型" 
-          @change="onModelChange"
           class="model-select"
           :disabled="loading"
+          @change="onModelChange"
         >
           <template #prefix>
             <el-icon><Cpu /></el-icon>
@@ -39,14 +66,20 @@
           >
             <div class="model-option">
               <span class="model-option-name">{{ model.name }}</span>
-              <span class="model-option-status" :class="model.status">
+              <span
+                class="model-option-status"
+                :class="model.status"
+              >
                 {{ model.status === 'loaded' ? '●' : '○' }}
               </span>
             </div>
           </el-option>
         </el-select>
         
-        <el-button class="icon-btn" @click="$router.push('/models')">
+        <el-button
+          class="icon-btn"
+          @click="$router.push('/models')"
+        >
           <el-icon><Setting /></el-icon>
         </el-button>
       </div>
@@ -55,9 +88,15 @@
     <!-- 聊天内容区 -->
     <main class="chat-main">
       <!-- 消息列表 -->
-      <div class="messages-container" ref="messagesContainer">
+      <div
+        ref="messagesContainer"
+        class="messages-container"
+      >
         <!-- 空状态 -->
-        <div v-if="messages.length === 0" class="empty-state">
+        <div
+          v-if="messages.length === 0"
+          class="empty-state"
+        >
           <div class="empty-illustration">
             <div class="chat-bubble">
               <span class="bubble-text">?</span>
@@ -68,10 +107,15 @@
         </div>
         
         <!-- 消息列表 -->
-        <div v-else class="messages-list">
-          <div v-for="(msg, index) in messages" :key="index" 
-               class="message" 
-               :class="msg.role"
+        <div
+          v-else
+          class="messages-list"
+        >
+          <div
+            v-for="(msg, index) in messages"
+            :key="index" 
+            class="message" 
+            :class="msg.role"
           >
             <!-- 用户消息 -->
             <template v-if="msg.role === 'user'">
@@ -81,9 +125,16 @@
               <div class="message-content">
                 <div class="message-bubble">
                   <!-- 图片显示 -->
-                  <div v-if="msg.images && msg.images.length > 0" class="message-images">
-                    <div v-for="(img, idx) in msg.images" :key="idx" class="message-image-frame">
-                      <img :src="'data:image/jpeg;base64,' + img" />
+                  <div
+                    v-if="msg.images && msg.images.length > 0"
+                    class="message-images"
+                  >
+                    <div
+                      v-for="(img, idx) in msg.images"
+                      :key="idx"
+                      class="message-image-frame"
+                    >
+                      <img :src="'data:image/jpeg;base64,' + img">
                     </div>
                   </div>
                   {{ msg.content }}
@@ -98,62 +149,118 @@
               </div>
               <div class="message-content">
                 <!-- 思考内容 -->
-                <div v-if="msg.thinking" class="thinking-box" :class="{ 'thinking-complete': msg.isThinkingComplete }">
-                  <div class="thinking-header" @click="toggleThinking(index)">
+                <div
+                  v-if="msg.thinking"
+                  class="thinking-box"
+                  :class="{ 'thinking-complete': msg.isThinkingComplete }"
+                >
+                  <div
+                    class="thinking-header"
+                    @click="toggleThinking(index)"
+                  >
                     <span class="thinking-icon">
                       <!-- 思考中：旋转的大脑图标 -->
-                      <svg v-if="!msg.isThinkingComplete" class="brain-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 5.5 5.5 0 0 1 4.96-8.96V6.5A2.5 2.5 0 0 0 7 4.5v-.006A2.5 2.5 0 0 1 9.5 2Z"/>
-                        <path d="M14.5 22A2.5 2.5 0 0 1 12 19.5v-15a2.5 2.5 0 0 1 4.96-.44 5.5 5.5 0 0 1-4.96 8.96V17.5a2.5 2.5 0 0 0 5 0v.006A2.5 2.5 0 0 1 14.5 22Z"/>
-                        <path d="M12 4.5V6"/>
-                        <path d="M12 18v1.5"/>
+                      <svg
+                        v-if="!msg.isThinkingComplete"
+                        class="brain-spinner"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      >
+                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 5.5 5.5 0 0 1 4.96-8.96V6.5A2.5 2.5 0 0 0 7 4.5v-.006A2.5 2.5 0 0 1 9.5 2Z" />
+                        <path d="M14.5 22A2.5 2.5 0 0 1 12 19.5v-15a2.5 2.5 0 0 1 4.96-.44 5.5 5.5 0 0 1-4.96 8.96V17.5a2.5 2.5 0 0 0 5 0v.006A2.5 2.5 0 0 1 14.5 22Z" />
+                        <path d="M12 4.5V6" />
+                        <path d="M12 18v1.5" />
                       </svg>
                       <!-- 思考完成：填充绿色的大脑图标 -->
-                      <svg v-else class="brain-complete" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
-                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 5.5 5.5 0 0 1 4.96-8.96V6.5A2.5 2.5 0 0 0 7 4.5v-.006A2.5 2.5 0 0 1 9.5 2Z"/>
-                        <path d="M14.5 22A2.5 2.5 0 0 1 12 19.5v-15a2.5 2.5 0 0 1 4.96-.44 5.5 5.5 0 0 1-4.96 8.96V17.5a2.5 2.5 0 0 0 5 0v.006A2.5 2.5 0 0 1 14.5 22Z"/>
-                        <path d="M12 4.5V6"/>
-                        <path d="M12 18v1.5"/>
+                      <svg
+                        v-else
+                        class="brain-complete"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      >
+                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 5.5 5.5 0 0 1 4.96-8.96V6.5A2.5 2.5 0 0 0 7 4.5v-.006A2.5 2.5 0 0 1 9.5 2Z" />
+                        <path d="M14.5 22A2.5 2.5 0 0 1 12 19.5v-15a2.5 2.5 0 0 1 4.96-.44 5.5 5.5 0 0 1-4.96 8.96V17.5a2.5 2.5 0 0 0 5 0v.006A2.5 2.5 0 0 1 14.5 22Z" />
+                        <path d="M12 4.5V6" />
+                        <path d="M12 18v1.5" />
                       </svg>
                     </span>
                     <span class="thinking-title">{{ msg.isThinkingComplete ? '思考完成' : '思考中...' }}</span>
                     <span class="thinking-toggle">
-                      <svg :class="{ 'is-collapsed': msg.isThinkingCollapsed }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 9l6 6 6-6"/>
+                      <svg
+                        :class="{ 'is-collapsed': msg.isThinkingCollapsed }"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M6 9l6 6 6-6" />
                       </svg>
                     </span>
                   </div>
-                  <div v-show="!msg.isThinkingCollapsed" class="thinking-body">
-                    <MarkdownRenderer :content="msg.thinking" :is-thinking="true" />
+                  <div
+                    v-show="!msg.isThinkingCollapsed"
+                    class="thinking-body"
+                  >
+                    <MarkdownRenderer
+                      :content="msg.thinking"
+                      :is-thinking="true"
+                    />
                   </div>
                 </div>
                 
                 <!-- 回复内容 -->
-                <div class="message-bubble" :class="{ 'has-thinking': msg.thinking }">
+                <div
+                  class="message-bubble"
+                  :class="{ 'has-thinking': msg.thinking }"
+                >
                   <MarkdownRenderer :content="msg.content" />
                 </div>
                 
                 <!-- 统计信息 -->
-                <div v-if="index === messages.length - 1 && stats.totalTokens > 0" 
-                     class="message-meta"
+                <div
+                  v-if="index === messages.length - 1 && stats.totalTokens > 0" 
+                  class="message-meta"
                 >
                   <span class="meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                     </svg>
                     {{ stats.promptTokens }}
                   </span>
                   <span class="meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 6v6l4 2"/>
-                      <circle cx="12" cy="12" r="10"/>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M12 6v6l4 2" />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                      />
                     </svg>
                     {{ stats.completionTokens }}
                   </span>
                   <span class="meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                     </svg>
                     {{ stats.speed.toFixed(1) }} t/s
                   </span>
@@ -163,17 +270,18 @@
           </div>
           
           <!-- 加载状态 -->
-          <div v-if="loading && (!messages.length || messages[messages.length - 1]?.role === 'user')" 
-               class="message assistant loading"
+          <div
+            v-if="loading && (!messages.length || messages[messages.length - 1]?.role === 'user')" 
+            class="message assistant loading"
           >
             <div class="message-avatar ai-avatar">
               <span>AI</span>
             </div>
             <div class="message-content">
               <div class="typing-indicator">
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
+                <span class="typing-dot" />
+                <span class="typing-dot" />
+                <span class="typing-dot" />
               </div>
             </div>
           </div>
@@ -184,14 +292,34 @@
       <footer class="input-area">
         <div class="input-wrapper">
           <!-- 图片预览 -->
-          <div v-if="selectedImages.length > 0" class="image-preview-area">
-            <div v-for="(img, idx) in selectedImages" :key="idx" class="image-preview-card">
+          <div
+            v-if="selectedImages.length > 0"
+            class="image-preview-area"
+          >
+            <div
+              v-for="(img, idx) in selectedImages"
+              :key="idx"
+              class="image-preview-card"
+            >
               <div class="image-frame">
-                <img :src="img.preview" alt="preview" />
+                <img
+                  :src="img.preview"
+                  alt="preview"
+                >
               </div>
-              <button class="close-btn" @click="removeImage(idx)">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <path d="M18 6L6 18M6 6l12 12"/>
+              <button
+                class="close-btn"
+                @click="removeImage(idx)"
+              >
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -205,10 +333,22 @@
               :disabled="loading"
               @click="triggerImageUpload"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                <polyline points="17,8 12,3 7,8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="17,8 12,3 7,8" />
+                <line
+                  x1="12"
+                  y1="3"
+                  x2="12"
+                  y2="15"
+                />
               </svg>
             </button>
             <input 
@@ -218,18 +358,18 @@
               multiple 
               style="display: none"
               @change="handleImageSelect"
-            />
+            >
             
             <el-input
               v-model="inputMessage"
               type="textarea"
               :rows="1"
               :placeholder="isVisionModel ? '输入消息或上传图片...' : '输入消息...'"
-              @keydown.enter.exact.prevent="sendMessage"
               :disabled="loading || !selectedModel"
               :autosize="{ minRows: 1, maxRows: 6 }"
               resize="none"
               class="message-input"
+              @keydown.enter.exact.prevent="sendMessage"
             />
             <button 
               class="send-btn"
@@ -237,24 +377,35 @@
               :disabled="(!inputMessage.trim() && selectedImages.length === 0) || !selectedModel"
               @click="sendMessage"
             >
-              <svg v-if="!loading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              <svg
+                v-if="!loading"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
               </svg>
             </button>
           </div>
           
           <!-- 参数显示 -->
-          <div class="params-bar" v-if="currentModelConfig">
+          <div
+            v-if="currentModelConfig"
+            class="params-bar"
+          >
             <div class="param-item">
               <span class="param-label">Temp</span>
               <span class="param-value">{{ currentModelConfig.default_temp }}</span>
             </div>
-            <div class="param-divider"></div>
+            <div class="param-divider" />
             <div class="param-item">
               <span class="param-label">Top-P</span>
               <span class="param-value">{{ currentModelConfig.default_top_p }}</span>
             </div>
-            <div class="param-divider"></div>
+            <div class="param-divider" />
             <div class="param-item">
               <span class="param-label">Context</span>
               <span class="param-value">{{ formatContextSize(currentModelConfig.max_context) }}</span>

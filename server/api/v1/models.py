@@ -7,7 +7,7 @@ router = APIRouter(prefix="/models", tags=["模型管理"])
 
 class ModelLoadRequest(BaseModel):
     model_id: Optional[str] = None
-    gpu_layers: Optional[int] = 99
+    gpu_layers: Optional[int] = None  # 默认None，使用配置文件值
     context_size: Optional[int] = None
     temperature: Optional[float] = None
     top_p: Optional[float] = None
@@ -26,7 +26,7 @@ class ModelInfoResponse(BaseModel):
     default_temp: float
     default_top_p: float
     default_top_k: int = 20
-    default_max_tokens: int = 4096
+    default_max_tokens: int = 131072
     enable_thinking: Optional[bool] = None
     tags: List[str]
     description: str
@@ -197,8 +197,8 @@ async def load_model(model_id: str, request: ModelLoadRequest = None):
     if not model.file_exists:
         raise HTTPException(status_code=400, detail=f"Model file not found: {model.path}")
     
-    # 使用默认值或请求中的值
-    gpu_layers = request.gpu_layers if request and request.gpu_layers is not None else 99
+    # 使用请求值、配置文件值或默认值
+    gpu_layers = request.gpu_layers if request and request.gpu_layers is not None else getattr(model, 'gpu_layers', 99)
     context_size = request.context_size if request and request.context_size else None
     temperature = request.temperature if request and request.temperature else None
     top_p = request.top_p if request and request.top_p else None
@@ -215,6 +215,7 @@ async def load_model(model_id: str, request: ModelLoadRequest = None):
             "name": model.name,
             "type": model.type,
             "category": model.category,
+            "backend": model.backend,
             "max_context": context_size or model.max_context,
             "gpu_layers": gpu_layers,
             "temperature": temperature or model.default_temp,
@@ -226,7 +227,9 @@ async def load_model(model_id: str, request: ModelLoadRequest = None):
             "parallel": model.parallel,
             "batch_size": model.batch_size,
             "tags": model.tags,
-            "description": model.description
+            "description": model.description,
+            "cache_type_k": model.cache_type_k,
+            "cache_type_v": model.cache_type_v
         }
         
         # 添加 mmproj 路径（如果有）

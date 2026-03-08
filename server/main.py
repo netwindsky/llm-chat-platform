@@ -13,7 +13,8 @@ import uvicorn
 
 from server.core.manager import ModelManager
 from server.services.backend_manager import BackendManager
-from server.api.v1 import models, chat, openai
+from server.api.v1 import models, chat, openai, logs
+from server.middleware.logging import RequestLoggingMiddleware
 
 
 # 全局变量
@@ -64,6 +65,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# 请求日志中间件（必须在 CORS 之前）
+app.add_middleware(RequestLoggingMiddleware)
+
 # CORS 配置
 app.add_middleware(
     CORSMiddleware,
@@ -77,6 +81,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(models.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
+app.include_router(logs.router, prefix="/api/v1")
 # OpenAI 兼容路由 (标准 /v1 路径)
 app.include_router(openai.router, prefix="/v1")
 
@@ -103,5 +108,7 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=38520,
-        reload=False
+        reload=False,
+        timeout_keep_alive=300,  # 保持连接5分钟
+        timeout_graceful_shutdown=30  # 优雅关闭超时
     )

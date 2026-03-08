@@ -4,7 +4,7 @@ const routes = [
   {
     path: '/',
     name: 'Chat',
-    component: () => import('@/views/Chat.vue'),
+    component: () => import('@/views/ChatModern.vue'),
     meta: { title: '聊天' }
   },
   {

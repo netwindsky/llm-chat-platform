@@ -1,6 +1,7 @@
 from typing import Dict, Any, Optional, Type
 from ..core.backend import InferenceBackend
 from .llama_backend import LlamaBackend
+from .sglang_backend import SGLangBackend
 
 
 class BackendFactory:
@@ -8,6 +9,7 @@ class BackendFactory:
     
     _backends: Dict[str, Type[InferenceBackend]] = {
         'llama': LlamaBackend,
+        'sglang': SGLangBackend,
     }
     
     _instances: Dict[str, InferenceBackend] = {}

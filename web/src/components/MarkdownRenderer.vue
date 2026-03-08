@@ -1,5 +1,8 @@
 <template>
-  <div class="markdown-body" v-html="sanitizedHtml"></div>
+  <div
+    class="markdown-body"
+    v-html="sanitizedHtml"
+  />
 </template>
 
 <script setup>
