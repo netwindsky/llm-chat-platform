@@ -13,7 +13,7 @@ import uvicorn
 
 from server.core.manager import ModelManager
 from server.services.backend_manager import BackendManager
-from server.api.v1 import models, chat, openai, logs
+from server.api.v1 import models, chat, openai, logs, anthropic
 from server.middleware.logging import RequestLoggingMiddleware
 
 
@@ -34,6 +34,10 @@ async def lifespan(app: FastAPI):
     config_path = "configs/models.yaml"
     model_manager = ModelManager(config_path)
     print(f"Loaded {len(model_manager.models)} models")
+
+    # 设置全局模型管理器（供适配器使用）
+    from server.core.manager import set_global_model_manager
+    set_global_model_manager(model_manager)
     
     # 初始化后端管理器
     backend_manager = BackendManager({
@@ -41,6 +45,10 @@ async def lifespan(app: FastAPI):
             "max_loaded_models": 3
         }
     })
+
+    # 设置全局后端管理器（供适配器使用）
+    from server.services.backend_manager import set_global_backend_manager
+    set_global_backend_manager(backend_manager)
     
     # 注入到 API 路由
     models.set_managers(model_manager, backend_manager)
@@ -84,6 +92,16 @@ app.include_router(chat.router, prefix="/api/v1")
 app.include_router(logs.router, prefix="/api/v1")
 # OpenAI 兼容路由 (标准 /v1 路径)
 app.include_router(openai.router, prefix="/v1")
+# Anthropic 兼容路由 (标准 /v1 路径)
+app.include_router(anthropic.router, prefix="/v1")
+# Anthropic 兼容路由 (处理 /v1/v1 重复前缀的情况)
+app.include_router(anthropic.router, prefix="/v1/v1")
+
+# 打印所有注册的路由（用于调试）
+print("\n[ROUTES] Registered routes:")
+for route in app.routes:
+    if hasattr(route, 'methods') and hasattr(route, 'path'):
+        print(f"  {route.methods} {route.path}")
 
 
 @app.get("/")

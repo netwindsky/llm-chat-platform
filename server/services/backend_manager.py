@@ -151,3 +151,18 @@ class BackendManager:
         """关闭所有模型"""
         for model_id in list(self._loaded_models.keys()):
             await self.unload_model(model_id)
+
+
+# 全局后端管理器实例
+_global_backend_manager: Optional[BackendManager] = None
+
+
+def set_global_backend_manager(manager: BackendManager):
+    """设置全局后端管理器"""
+    global _global_backend_manager
+    _global_backend_manager = manager
+
+
+def get_backend_manager() -> Optional[BackendManager]:
+    """获取全局后端管理器"""
+    return _global_backend_manager

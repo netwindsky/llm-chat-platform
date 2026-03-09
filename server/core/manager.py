@@ -182,3 +182,18 @@ class ModelManager:
     def reload(self):
         """重新加载配置"""
         self._load_config()
+
+
+# 全局模型管理器实例（用于适配器访问）
+_global_model_manager: Optional[ModelManager] = None
+
+
+def set_global_model_manager(manager: ModelManager):
+    """设置全局模型管理器"""
+    global _global_model_manager
+    _global_model_manager = manager
+
+
+def get_model_manager() -> Optional[ModelManager]:
+    """获取全局模型管理器"""
+    return _global_model_manager
