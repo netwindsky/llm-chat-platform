@@ -114,8 +114,9 @@ export const useChatStore = defineStore('chat', () => {
         })) {
           chunkCount++
           const delta = chunk.choices?.[0]?.delta || {}
+          // llama-server 返回 reasoning_content 字段，不是 thinking
           const content = delta.content || ''
-          const thinking = delta.thinking || ''
+          const thinking = delta.reasoning_content || delta.thinking || ''
           
           // 更新消息内容
           if (content) {

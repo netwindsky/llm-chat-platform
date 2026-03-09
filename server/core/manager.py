@@ -62,7 +62,8 @@ class ModelManager:
             return None
         if os.path.isabs(path):
             return path
-        return os.path.normpath(os.path.join(self.config_dir, '..', path))
+        # 路径现在已经是相对于 models/ 目录的，需要加上 models/ 前缀
+        return os.path.normpath(os.path.join(self.config_dir, '..', 'models', path))
     
     def _load_config(self):
         """加载配置文件"""
@@ -76,6 +77,11 @@ class ModelManager:
         for m in config.get('models', []):
             model_path = self._resolve_path(m.get('path', ''))
             mmproj_path = self._resolve_path(m.get('mmproj'))
+            
+            # 跳过没有 path 的模型配置
+            if not model_path:
+                print(f"[ModelManager] Warning: Model {m.get('id', 'unknown')} has no path, skipping")
+                continue
             
             model = ModelConfig(
                 id=m.get('id', ''),

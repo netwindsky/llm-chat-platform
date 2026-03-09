@@ -299,14 +299,17 @@ async def chat_completions(request: ChatRequest):
             "temperature": request.temperature if request.temperature is not None else (model_config.default_temp if model_config else 0.7),
             "top_p": request.top_p if request.top_p is not None else (model_config.default_top_p if model_config else 0.8),
             "top_k": request.top_k if request.top_k is not None else (model_config.default_top_k if model_config else 20),
-            "max_tokens": max_tokens
+            "min_p": request.min_p if request.min_p is not None else None,
+            "max_tokens": max_tokens,
+            "presence_penalty": request.presence_penalty,
+            "repeat_penalty": request.repeat_penalty
         }
         
         # 传递 tools 参数
         if request.tools:
             config["tools"] = request.tools
         if request.tool_choice:
-            config["tool_choice"] = request.tool_choice
+            config["tool_choice"] = tool_choice
         
         if model_config and model_config.enable_thinking is not None:
             config["enable_thinking"] = model_config.enable_thinking
@@ -326,27 +329,21 @@ async def chat_completions(request: ChatRequest):
                     print(f"[OpenAI] Calling chat_stream for model: {request.model}")
                     async for chunk in _backend_manager.chat_stream(request.model, messages, config):
                         chunk_count += 1
-                        delta = chunk.choices[0].get("delta", {}) if chunk.choices else {}
-                        delta_dict = {
-                            "content": delta.get("content", ""),
-                            "thinking": delta.get("thinking", "")
-                        }
-
-                        # 保留 tool_calls（如果存在）
-                        if "tool_calls" in delta:
-                            delta_dict["tool_calls"] = delta["tool_calls"]
-
+                        # 调试：打印 chunk.choices
+                        if chunk_count <= 10:
+                            print(f"[OpenAI] Chunk {chunk_count}: choices type={type(chunk.choices)}, value={chunk.choices}")
+                        
+                        # 直接透传 llama-server 的 chunk 数据
                         chunk_data = {
                             "id": chunk.id,
                             "object": "chat.completion.chunk",
                             "created": chunk.created,
                             "model": chunk.model,
-                            "choices": [{
-                                "index": 0,
-                                "delta": delta_dict,
-                                "finish_reason": chunk.choices[0].get("finish_reason") if chunk.choices else None
-                            }]
+                            "choices": chunk.choices
                         }
+                        # 如果有 usage，也透传
+                        if chunk.usage:
+                            chunk_data["usage"] = chunk.usage
                         yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
                     stream_duration = time() - stream_start_time
                     print(f"[OpenAI] Stream completed: {chunk_count} chunks sent in {stream_duration:.2f}s")

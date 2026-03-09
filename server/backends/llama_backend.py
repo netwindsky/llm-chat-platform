@@ -419,6 +419,15 @@ class LlamaBackend(InferenceBackend):
         if payload["min_p"] is None:
             del payload["min_p"]
         
+        # 添加 presence_penalty 和 repeat_penalty
+        presence_penalty = config.get("presence_penalty")
+        if presence_penalty is not None:
+            payload["presence_penalty"] = presence_penalty
+        
+        repeat_penalty = config.get("repeat_penalty")
+        if repeat_penalty is not None:
+            payload["repeat_penalty"] = repeat_penalty
+        
         # 支持 tools 参数
         tools = config.get("tools")
         if tools:
@@ -490,7 +499,7 @@ class LlamaBackend(InferenceBackend):
         messages: List[ChatMessage], 
         config: Dict[str, Any]
     ) -> AsyncGenerator[ChatChunk, None]:
-        """流式对话"""
+        """流式对话 - 直接透传 llama-server 的响应"""
         import httpx
         from time import time
         
@@ -499,12 +508,9 @@ class LlamaBackend(InferenceBackend):
         # 构建消息列表（支持多模态和 tool_calls）
         def build_message(msg):
             """构建消息，保留多模态格式和 tool_calls"""
-            # msg 可能是 dict 或对象
             if isinstance(msg, dict):
-                # 已经是 dict，直接返回（保留 tool_calls 等字段）
                 return msg
             else:
-                # 是对象，转换
                 if isinstance(msg.content, list):
                     return {"role": msg.role, "content": msg.content}
                 else:
@@ -512,35 +518,26 @@ class LlamaBackend(InferenceBackend):
         
         payload = {
             "messages": [build_message(m) for m in messages],
-            "temperature": config.get("temperature", 0.7),
-            "top_p": config.get("top_p", 0.8),
-            "top_k": config.get("top_k", 20),
-            "min_p": config.get("min_p"),
-            "max_tokens": config.get("max_tokens", 4096),
             "stream": True
         }
         
-        # 只在 min_p 不为 None 时添加
-        if payload["min_p"] is None:
-            del payload["min_p"]
+        # 只传递非 None 的参数，保持与 OpenAI API 一致
+        for key in ["temperature", "top_p", "top_k", "min_p", "max_tokens", 
+                    "presence_penalty", "frequency_penalty", "repeat_penalty", "stop"]:
+            if config.get(key) is not None:
+                payload[key] = config[key]
         
-        # 支持 tools 参数
-        tools = config.get("tools")
-        if tools:
-            payload["tools"] = tools
-            print(f"[DEBUG] chat_stream: Adding {len(tools)} tools to payload")
+        # tools 和 tool_choice
+        if config.get("tools"):
+            payload["tools"] = config["tools"]
+        if config.get("tool_choice"):
+            payload["tool_choice"] = config["tool_choice"]
         
-        tool_choice = config.get("tool_choice")
-        if tool_choice:
-            payload["tool_choice"] = tool_choice
+        # enable_thinking 参数
+        if config.get("enable_thinking") is not None:
+            payload["chat_template_kwargs"] = {"enable_thinking": config["enable_thinking"]}
         
-        # 支持 enable_thinking 参数
-        enable_thinking = config.get("enable_thinking")
-        if enable_thinking is not None:
-            payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
-            print(f"[DEBUG] chat_stream: chat_template_kwargs: enable_thinking={enable_thinking}")
-        
-        # 用于累积思考内容
+        # 直接透传 llama-server 的响应
         async with httpx.AsyncClient() as client:
             async with client.stream(
                 "POST",
@@ -554,35 +551,21 @@ class LlamaBackend(InferenceBackend):
                         if data == "[DONE]":
                             break
                         try:
+                            # 直接解析并透传 llama-server 的响应（保持原始字段名）
                             chunk_data = json.loads(data)
+                            
+                            # 调试：打印 llama-server 返回的原始字段
                             delta = chunk_data.get("choices", [{}])[0].get("delta", {})
-                            content = delta.get("content", "")
-                            
-                            # deepseek 格式的思考内容在 reasoning_content 字段
-                            thinking = delta.get("reasoning_content", "")
-                            
-                            # 提取 tool_calls
-                            tool_calls = delta.get("tool_calls")
-                            
-                            # 构建 delta 字典
-                            delta_dict = {
-                                "content": content,
-                                "thinking": thinking
-                            }
-                            
-                            # 如果有 tool_calls，添加到 delta
-                            if tool_calls:
-                                delta_dict["tool_calls"] = tool_calls
+                            if delta and (delta.get('reasoning_content') or delta.get('content')):
+                                print(f"[LLAMA-SERVER] delta keys: {list(delta.keys())}, content='{delta.get('content', '')}', thinking='{delta.get('thinking', '')}', reasoning_content='{delta.get('reasoning_content', '')}'")
+                                print(f"[LLAMA-SERVER] Full chunk_data.choices: {chunk_data.get('choices')}")
                             
                             yield ChatChunk(
                                 id=chunk_data.get("id", "chatcmpl-stream"),
                                 created=chunk_data.get("created", int(start_time)),
                                 model=chunk_data.get("model", self._model_info.name if self._model_info else "unknown"),
-                                choices=[{
-                                    "index": 0,
-                                    "delta": delta_dict,
-                                    "finish_reason": chunk_data.get("choices", [{}])[0].get("finish_reason")
-                                }]
+                                choices=chunk_data.get("choices", []),
+                                usage=chunk_data.get("usage")
                             )
                         except Exception as e:
                             print(f"Error processing chunk: {e}")

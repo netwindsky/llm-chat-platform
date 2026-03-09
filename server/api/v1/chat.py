@@ -203,16 +203,7 @@ async def chat_completions(request: ChatRequest):
             async def generate():
                 try:
                     async for chunk in backend_manager.chat_stream(request.model, messages, config):
-                        # 构造 SSE 格式的响应
                         delta = chunk.choices[0].get("delta", {}) if chunk.choices else {}
-                        delta_dict = {
-                            "content": delta.get("content", ""),
-                            "thinking": delta.get("thinking", "")
-                        }
-                        
-                        # 保留 tool_calls（如果存在）
-                        if "tool_calls" in delta:
-                            delta_dict["tool_calls"] = delta["tool_calls"]
                         
                         chunk_data = {
                             "id": chunk.id,
@@ -221,12 +212,11 @@ async def chat_completions(request: ChatRequest):
                             "model": chunk.model,
                             "choices": [{
                                 "index": 0,
-                                "delta": delta_dict,
+                                "delta": delta,
                                 "finish_reason": chunk.choices[0].get("finish_reason") if chunk.choices else None
                             }]
                         }
                         
-                        # 如果有 usage 信息，添加到响应中
                         if chunk.usage and chunk.usage.get("total_tokens", 0) > 0:
                             chunk_data["usage"] = chunk.usage
                         

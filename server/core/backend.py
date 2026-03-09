@@ -72,6 +72,7 @@ class ChatChunk:
     created: int = 0
     model: str = ""
     choices: List[Dict[str, Any]] = None
+    usage: Optional[Dict[str, Any]] = None
     
     def __post_init__(self):
         if self.choices is None:
