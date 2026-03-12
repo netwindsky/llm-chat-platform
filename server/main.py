@@ -39,11 +39,21 @@ async def lifespan(app: FastAPI):
     from server.core.manager import set_global_model_manager
     set_global_model_manager(model_manager)
     
-    # 初始化后端管理器
+    # 加载服务器配置
+    import yaml
+    server_config = {}
+    try:
+        with open("configs/server.yaml", "r", encoding="utf-8") as f:
+            server_config = yaml.safe_load(f) or {}
+    except Exception as e:
+        print(f"[Warning] 无法加载 server.yaml: {e}")
+    
+    # 初始化后端管理器（传入完整配置）
     backend_manager = BackendManager({
         "model_loading": {
             "max_loaded_models": 3
-        }
+        },
+        "idle_monitor": server_config.get("idle_monitor", {"enabled": True, "timeout": 60})
     })
 
     # 设置全局后端管理器（供适配器使用）
@@ -119,6 +129,35 @@ async def health():
         "status": "ok",
         "models_loaded": len(backend_manager.get_loaded_models()) if backend_manager else 0
     }
+
+
+@app.get("/unload")
+async def unload_all_models():
+    """直接卸载所有已加载的模型（根路径快捷接口）GET 方法"""
+    if not backend_manager or not model_manager:
+        return {"success": False, "error": "Managers not initialized"}
+    
+    try:
+        loaded_models = backend_manager.get_loaded_models()
+        unloaded_models = []
+        failed_models = []
+        
+        for model_id in loaded_models:
+            try:
+                await backend_manager.unload_model(model_id)
+                model_manager.update_model_status(model_id, "unloaded")
+                unloaded_models.append(model_id)
+            except Exception as e:
+                failed_models.append({"model_id": model_id, "error": str(e)})
+        
+        return {
+            "success": True,
+            "message": f"Unloaded {len(unloaded_models)} models",
+            "unloaded_models": unloaded_models,
+            "failed_models": failed_models
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 if __name__ == "__main__":

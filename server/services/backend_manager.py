@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from ..backends.backend_factory import BackendFactory
 from ..core.backend import ChatMessage, InferenceBackend
+from .idle_monitor import get_idle_monitor
 
 
 class BackendManager:
@@ -13,6 +14,19 @@ class BackendManager:
         self._loaded_models: Dict[str, InferenceBackend] = {}
         self._current_model: Optional[str] = None
         self._lock = asyncio.Lock()
+        
+        # 获取或创建空闲监控管理器
+        self._idle_monitor = get_idle_monitor()
+        self._idle_monitor.set_backend_manager(self)
+        
+        # 从配置中读取空闲监控设置
+        idle_config = config.get("idle_monitor", {})
+        self._default_idle_timeout = idle_config.get("timeout", 60)  # 默认60秒
+        self._idle_monitor_enabled = idle_config.get("enabled", True)  # 默认启用
+        
+        # 调试日志
+        print(f"[BackendManager] 空闲监控配置: enabled={self._idle_monitor_enabled}, timeout={self._default_idle_timeout}")
+        print(f"[BackendManager] 完整 idle_config: {idle_config}")
     
     async def load_model(self, model_id: str, model_path: str, model_config: Dict[str, Any]) -> bool:
         """加载模型"""
@@ -83,6 +97,21 @@ class BackendManager:
             if success:
                 self._loaded_models[model_id] = backend
                 self._current_model = model_id
+                
+                # 注册到空闲监控
+                if self._idle_monitor_enabled:
+                    # 从模型配置中获取监控设置（模型配置可以覆盖全局设置）
+                    model_idle_timeout = model_config.get("idle_timeout", self._default_idle_timeout)
+                    # 模型级别的 enabled 默认使用全局设置，如果模型明确指定则使用模型配置
+                    model_idle_enabled = model_config.get("idle_monitor_enabled", self._idle_monitor_enabled)
+                    
+                    self._idle_monitor.register_server(
+                        port=port,
+                        idle_timeout=model_idle_timeout,
+                        enabled=model_idle_enabled
+                    )
+                    self._idle_monitor.set_model_for_port(port, model_id)
+                    print(f"load_model: 已注册空闲监控 - 端口 {port}, 超时 {model_idle_timeout}秒, 启用 {model_idle_enabled}")
         
         return success
     
@@ -122,6 +151,11 @@ class BackendManager:
             raise ValueError(f"Model not loaded: {model_id}")
         
         backend = self._loaded_models[model_id]
+        
+        # 更新空闲监控的最后请求时间
+        if hasattr(backend, 'port'):
+            self._idle_monitor.update_request_time(backend.port)
+        
         result = await backend.chat(messages, config)
         return result
     
@@ -131,6 +165,11 @@ class BackendManager:
             raise ValueError(f"Model not loaded: {model_id}")
         
         backend = self._loaded_models[model_id]
+        
+        # 更新空闲监控的最后请求时间
+        if hasattr(backend, 'port'):
+            self._idle_monitor.update_request_time(backend.port)
+        
         async for chunk in backend.chat_stream(messages, config):
             yield chunk
     

@@ -259,7 +259,7 @@ async def load_model(model_id: str, request: ModelLoadRequest = None):
 
 @router.post("/{model_id}/unload")
 async def unload_model(model_id: str):
-    """卸载模型"""
+    """卸载指定模型"""
     model_manager = get_model_manager()
     backend_manager = get_backend_manager()
     
@@ -272,3 +272,155 @@ async def unload_model(model_id: str):
         return {"success": True, "message": f"Model {model_id} unloaded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/unload")
+async def unload_all_models():
+    """卸载所有已加载的模型"""
+    model_manager = get_model_manager()
+    backend_manager = get_backend_manager()
+    
+    if not model_manager or not backend_manager:
+        raise HTTPException(status_code=500, detail="Managers not initialized")
+    
+    try:
+        loaded_models = backend_manager.get_loaded_models()
+        unloaded_models = []
+        failed_models = []
+        
+        for model_id in loaded_models:
+            try:
+                await backend_manager.unload_model(model_id)
+                model_manager.update_model_status(model_id, "unloaded")
+                unloaded_models.append(model_id)
+            except Exception as e:
+                failed_models.append({"model_id": model_id, "error": str(e)})
+        
+        return {
+            "success": True,
+            "message": f"Unloaded {len(unloaded_models)} models",
+            "unloaded_models": unloaded_models,
+            "failed_models": failed_models
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/unload-by-port/{port}")
+async def unload_model_by_port(port: int):
+    """按端口卸载模型（卸载指定端口上的模型）"""
+    model_manager = get_model_manager()
+    backend_manager = get_backend_manager()
+    
+    if not model_manager or not backend_manager:
+        raise HTTPException(status_code=500, detail="Managers not initialized")
+    
+    try:
+        # 查找使用该端口的模型
+        from ...services.idle_monitor import get_idle_monitor
+        monitor = get_idle_monitor()
+        port_monitor = monitor.get_monitor(port)
+        
+        if not port_monitor or not port_monitor.model_id:
+            raise HTTPException(status_code=404, detail=f"No model found on port {port}")
+        
+        model_id = port_monitor.model_id
+        
+        # 卸载模型
+        await backend_manager.unload_model(model_id)
+        model_manager.update_model_status(model_id, "unloaded")
+        
+        return {
+            "success": True,
+            "message": f"Model {model_id} on port {port} unloaded successfully",
+            "model_id": model_id,
+            "port": port
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========== 空闲监控管理 API ==========
+
+from ...services.idle_monitor import get_idle_monitor
+
+
+class IdleMonitorConfig(BaseModel):
+    """空闲监控配置"""
+    enabled: bool = True
+    timeout: int = 60  # 秒
+
+
+class IdleMonitorStatus(BaseModel):
+    """空闲监控状态"""
+    port: int
+    enabled: bool
+    idle_timeout: int
+    model_id: Optional[str]
+    idle_time: float
+    is_idle: bool
+    monitoring: bool
+
+
+@router.get("/idle-monitor/status", response_model=Dict[str, Any])
+async def get_idle_monitor_status():
+    """获取所有空闲监控状态"""
+    monitor = get_idle_monitor()
+    status = monitor.get_all_status()
+    return {
+        "success": True,
+        "monitors": status
+    }
+
+
+@router.get("/idle-monitor/{port}/status", response_model=IdleMonitorStatus)
+async def get_port_idle_status(port: int):
+    """获取指定端口的空闲监控状态"""
+    monitor = get_idle_monitor()
+    port_monitor = monitor.get_monitor(port)
+    
+    if not port_monitor:
+        raise HTTPException(status_code=404, detail=f"Port {port} not monitored")
+    
+    return port_monitor.get_status()
+
+
+@router.post("/idle-monitor/{port}/config")
+async def set_port_idle_config(port: int, config: IdleMonitorConfig):
+    """设置指定端口的空闲监控配置"""
+    monitor = get_idle_monitor()
+    port_monitor = monitor.get_monitor(port)
+    
+    if not port_monitor:
+        raise HTTPException(status_code=404, detail=f"Port {port} not monitored")
+    
+    monitor.enable_monitoring(port, config.enabled)
+    monitor.set_idle_timeout(port, config.timeout)
+    
+    return {
+        "success": True,
+        "message": f"Idle monitor config updated for port {port}",
+        "config": {
+            "enabled": config.enabled,
+            "timeout": config.timeout
+        }
+    }
+
+
+@router.post("/idle-monitor/{port}/reset")
+async def reset_port_idle_timer(port: int):
+    """重置指定端口的空闲计时器"""
+    monitor = get_idle_monitor()
+    port_monitor = monitor.get_monitor(port)
+    
+    if not port_monitor:
+        raise HTTPException(status_code=404, detail=f"Port {port} not monitored")
+    
+    monitor.update_request_time(port)
+    
+    return {
+        "success": True,
+        "message": f"Idle timer reset for port {port}"
+    }

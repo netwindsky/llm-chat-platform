@@ -65,6 +65,24 @@ model_loading:
   auto_unload_idle_minutes: 30
   enable_lru: true
 
+# 空闲监控配置（自动卸载空闲模型）
+idle_monitor:
+  enabled: false                    # 是否启用空闲监控
+  timeout: 60                      # 默认空闲超时时间（秒），默认1分钟
+  check_interval: 10               # 检查间隔（秒）
+  
+  # 按端口单独配置（可选）
+  # 如果不配置，使用上面的默认设置
+  port_configs:
+    # 示例：端口 38521 的配置
+    # 38521:
+    #   enabled: true
+    #   timeout: 120               # 2分钟
+    # 
+    # 示例：端口 38522 的配置  
+    # 38522:
+    #   enabled: false            # 禁用该端口的空闲监控
+
 # 会话配置
 session:
   max_history_messages: 100

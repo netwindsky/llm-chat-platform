@@ -86,6 +86,11 @@ class LlamaBackend(InferenceBackend):
         self._lock = asyncio.Lock()
     
     @property
+    def port(self) -> int:
+        """获取服务端口号"""
+        return self._port
+    
+    @property
     def is_available(self) -> bool:
         """检查 llama-server 是否可用"""
         server_path = self.config.get("server_path", "runtimes/llama/bin/llama-server.exe")
