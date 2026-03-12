@@ -60,27 +60,26 @@ async def anthropic_messages(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON body")
     
-    # 记录完整请求到日志
+    # 记录完整请求到日志（不打印到控制台）
     logger.info(f"\n{'='*80}")
     logger.info(f"[REQUEST {request_id}] {timestamp}")
     logger.info(f"{'='*80}")
     logger.info(f"Method: POST {request.url.path}")
     logger.info(f"Headers: {dict(request.headers)}")
-    logger.info(f"Body:\n{json.dumps(body, indent=2, ensure_ascii=False)}")
-    logger.info(f"{'='*80}\n")
+    # 不打印完整 body，避免日志过多
     
     # 强制打印入口日志
-    print(f"\n{'='*60}")
-    print(f"[ANTHROPIC] ENTER anthropic_messages | Request ID: {request_id}")
-    print(f"{'='*60}")
+    # print(f"\n{'='*60}")
+    # print(f"[ANTHROPIC] ENTER anthropic_messages | Request ID: {request_id}")
+    # print(f"{'='*60}")
 
     # 打印关键请求信息（精简版）
-    print(f"\n[ANTHROPIC] {request.method} {request.url.path} | model={body.get('model', 'N/A')} | stream={body.get('stream', False)}")
+    # print(f"\n[ANTHROPIC] {request.method} {request.url.path} | model={body.get('model', 'N/A')} | stream={body.get('stream', False)}")
 
     # 打印 tools（如果有）
-    tools = body.get('tools', [])
-    if tools:
-        print(f"[ANTHROPIC] Tools: {[t.get('name') for t in tools]}")
+    # tools = body.get('tools', [])
+    # if tools:
+    #     print(f"[ANTHROPIC] Tools: {[t.get('name') for t in tools]}")
 
     # 打印最后一条消息（用于查看用户输入）
     messages = body.get('messages', [])
@@ -92,10 +91,10 @@ async def anthropic_messages(
             content_str = str(content)[:100]
         else:
             content_str = str(content)[:100]
-        print(f"[ANTHROPIC] Last message ({last_msg.get('role')}): {content_str}{'...' if len(str(content)) > 100 else ''}")
+        # print(f"[ANTHROPIC] Last message ({last_msg.get('role')}): {content_str}{'...' if len(str(content)) > 100 else ''}")
 
     # 打印消息数量
-    print(f"[ANTHROPIC] Total messages: {len(messages)}")
+    # print(f"[ANTHROPIC] Total messages: {len(messages)}")
 
     # 验证必要参数
     if "messages" not in body:
@@ -159,9 +158,10 @@ async def anthropic_messages(
     try:
         openai_body = adapter.convert_request(body)
         # 打印转换后的 OpenAI 请求（用于调试）
-        print(f"[ANTHROPIC] Converted OpenAI request keys: {list(openai_body.keys())}")
+        # print(f"[ANTHROPIC] Converted OpenAI request keys: {list(openai_body.keys())}")
         if 'tools' in openai_body:
-            print(f"[ANTHROPIC] Tools in OpenAI request: {[t.get('function', {}).get('name') for t in openai_body.get('tools', [])]}")
+            pass
+            # print(f"[ANTHROPIC] Tools in OpenAI request: {[t.get('function', {}).get('name') for t in openai_body.get('tools', [])]}")
         # 打印转换后的 messages（用于调试 content type 问题）
         for i, msg in enumerate(openai_body.get('messages', [])):
             content = msg.get('content', '')
@@ -172,13 +172,14 @@ async def anthropic_messages(
                         types.append(c.get('type'))
                     else:
                         types.append(type(c).__name__)
-                print(f"[ANTHROPIC] Message {i} ({msg.get('role')}): content is list with types: {types}")
+                # print(f"[ANTHROPIC] Message {i} ({msg.get('role')}): content is list with types: {types}")
             else:
-                print(f"[ANTHROPIC] Message {i} ({msg.get('role')}): content is string, len={len(str(content))}")
+                pass
+                # print(f"[ANTHROPIC] Message {i} ({msg.get('role')}): content is string, len={len(str(content))}")
     except Exception as e:
         import traceback
-        print(f"[ANTHROPIC] Error converting request: {e}")
-        print(f"[ANTHROPIC] Traceback: {traceback.format_exc()}")
+        # print(f"[ANTHROPIC] Error converting request: {e}")
+        # print(f"[ANTHROPIC] Traceback: {traceback.format_exc()}")
         return JSONResponse(
             status_code=400,
             content={
@@ -195,14 +196,14 @@ async def anthropic_messages(
 
     # 自动加载模型
     if openai_model not in backend_manager.get_loaded_models():
-        print(f"[Anthropic] Model {openai_model} not loaded, auto-loading...")
+        # print(f"[Anthropic] Model {openai_model} not loaded, auto-loading...")
 
         # 卸载其他模型
         loaded_models = backend_manager.get_loaded_models()
         if loaded_models:
             for old_model in loaded_models:
                 if old_model != openai_model:
-                    print(f"[Anthropic] Unloading old model: {old_model}")
+                    # print(f"[Anthropic] Unloading old model: {old_model}")
                     await backend_manager.unload_model(old_model)
                     model_manager.update_model_status(old_model, "unloaded")
 
@@ -221,6 +222,9 @@ async def anthropic_messages(
             "enable_thinking": model_config.enable_thinking,
             "parallel": model_config.parallel,
             "batch_size": model_config.batch_size,
+            "ubatch_size": getattr(model_config, 'ubatch_size', None),
+            "presence_penalty": getattr(model_config, 'presence_penalty', None),
+            "repetition_penalty": getattr(model_config, 'repetition_penalty', None),
             "tags": model_config.tags,
             "description": model_config.description,
             "cache_type_k": model_config.cache_type_k,
@@ -230,7 +234,7 @@ async def anthropic_messages(
         success = await backend_manager.load_model(openai_model, model_config.path, model_load_config)
         if success:
             model_manager.update_model_status(openai_model, "loaded")
-            print(f"[Anthropic] Model {openai_model} loaded successfully")
+            # print(f"[Anthropic] Model {openai_model} loaded successfully")
         else:
             return JSONResponse(
                 status_code=500,
@@ -254,50 +258,63 @@ async def anthropic_messages(
         )
         messages.append(msg)
     
-    print(f"[ANTHROPIC] Converted {len(messages)} messages to ChatMessage objects")
+    # print(f"[ANTHROPIC] Converted {len(messages)} messages to ChatMessage objects")
 
-    # 构建生成配置
+    # 从模型配置获取默认值
+    print(f"[DEBUG] model_config type={type(model_config)}, default_temp={getattr(model_config, 'default_temp', 'NOT_FOUND')}")
+    default_temp = model_config.default_temp if hasattr(model_config, 'default_temp') else 0.7
+    default_top_p = model_config.default_top_p if hasattr(model_config, 'default_top_p') else 0.8
+    default_top_k = model_config.default_top_k if hasattr(model_config, 'default_top_k') else 40
+    print(f"[DEBUG] Using defaults: temp={default_temp}, top_p={default_top_p}, top_k={default_top_k}")
+
+    # 构建生成配置（使用模型配置的默认值）
     config = {
-        "temperature": openai_body.get("temperature", 0.7),
+        "temperature": openai_body.get("temperature", default_temp),
         "max_tokens": openai_body.get("max_tokens", 1024),
     }
 
     if "top_p" in openai_body:
         config["top_p"] = openai_body["top_p"]
+    else:
+        config["top_p"] = default_top_p
+    
     if "top_k" in openai_body:
         config["top_k"] = openai_body["top_k"]
+    else:
+        config["top_k"] = default_top_k
+    
+    # 添加模型特有的参数
+    presence_val = getattr(model_config, 'presence_penalty', None)
+    repetition_val = getattr(model_config, 'repetition_penalty', None)
+    print(f"[DEBUG] Model config: presence_penalty={presence_val}, repetition_penalty={repetition_val}")
+    if presence_val is not None:
+        config["presence_penalty"] = presence_val
+    if repetition_val is not None:
+        config["repeat_penalty"] = repetition_val  # llama-server 使用 repeat_penalty
+    print(f"[DEBUG] Config after adding penalties: {config}")
+    
     if "stop" in openai_body:
         config["stop"] = openai_body["stop"]
 
     # 判断是否流式响应
     is_stream = body.get("stream", False)
+    tools = body.get('tools', [])
+    has_tools = len(tools) > 0
+    
+    # print(f"[DEBUG] is_stream={is_stream}, has_tools={has_tools}, tools_count={len(tools)}")
 
-    if is_stream:
-        # 流式响应 - 先检查是否有工具调用，如果有则切换为非流式
-        full_content = ""
-        tool_use_detected = False
-        collected_chunks = []
-        
-        async for chunk in backend_manager.chat_stream(openai_model, messages, config):
-            content = ""
-            thinking = ""
-            reasoning_content = ""
+    if is_stream and not has_tools:
+        # 流式响应 - 只有在请求不带工具时使用（边接收边发送）
+        async def stream_generator():
+            async for chunk in backend_manager.chat_stream(openai_model, messages, config):
+                content = ""
+                thinking = ""
+                reasoning_content = ""
 
-            if hasattr(chunk, 'choices') and chunk.choices:
-                choice = chunk.choices[0]
-                if isinstance(choice, dict):
-                    delta = choice.get('delta', {})
-                    if isinstance(delta, dict):
-                        content = delta.get('content', '')
-                        thinking = delta.get('thinking', '')
-                        reasoning_content = delta.get('reasoning_content', '')
-                    else:
-                        content = getattr(delta, 'content', '')
-                        thinking = getattr(delta, 'thinking', '')
-                        reasoning_content = getattr(delta, 'reasoning_content', '')
-                else:
-                    delta = getattr(choice, 'delta', None)
-                    if delta:
+                if hasattr(chunk, 'choices') and chunk.choices:
+                    choice = chunk.choices[0]
+                    if isinstance(choice, dict):
+                        delta = choice.get('delta', {})
                         if isinstance(delta, dict):
                             content = delta.get('content', '')
                             thinking = delta.get('thinking', '')
@@ -306,65 +323,34 @@ async def anthropic_messages(
                             content = getattr(delta, 'content', '')
                             thinking = getattr(delta, 'thinking', '')
                             reasoning_content = getattr(delta, 'reasoning_content', '')
+                    else:
+                        delta = getattr(choice, 'delta', None)
+                        if delta:
+                            if isinstance(delta, dict):
+                                content = delta.get('content', '')
+                                thinking = delta.get('thinking', '')
+                                reasoning_content = delta.get('reasoning_content', '')
+                            else:
+                                content = getattr(delta, 'content', '')
+                                thinking = getattr(delta, 'thinking', '')
+                                reasoning_content = getattr(delta, 'reasoning_content', '')
 
-            if not content and thinking:
-                content = thinking
-            if not content and reasoning_content:
-                content = reasoning_content
+                if not content and thinking:
+                    content = thinking
+                if not content and reasoning_content:
+                    content = reasoning_content
 
-            if content:
-                full_content += content
-                collected_chunks.append(content)
+                if content:
+                    yield f"data: {json.dumps({'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'text_delta', 'text': content}})}\n\n"
 
-            # 检查是否是工具调用
-            tool_use_patterns = [
-                ("<tool_use>", "</tool_use>"),
-                ("<tool-use>", "</tool-use>"),
-                ("<tool use>", "</tool use>"),
-            ]
-            for open_tag, close_tag in tool_use_patterns:
-                if open_tag in full_content and close_tag in full_content:
-                    tool_use_detected = True
-                    break
-            
-            if tool_use_detected:
-                break
-
-        # 如果检测到工具调用，返回非流式响应
-        if tool_use_detected:
-            openai_response = {
-                "id": f"chatcmpl-{str(uuid.uuid4())[:10]}",
-                "object": "chat.completion",
-                "created": int(time.time()),
-                "model": openai_model,
-                "choices": [{
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": full_content
-                    },
-                    "finish_reason": "stop"
-                }],
-                "usage": {
-                    "prompt_tokens": 0,
-                    "completion_tokens": len(full_content) // 4,
-                    "total_tokens": len(full_content) // 4
-                }
-            }
-            anthropic_response = adapter.convert_response(openai_response, anthropic_model)
-            return JSONResponse(content=anthropic_response)
-
-        # 没有检测到工具调用，继续流式响应（使用已收集的chunks）
-        async def resume_stream_generator():
-            for chunk_content in collected_chunks:
-                yield f"data: {json.dumps({'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'text_delta', 'text': chunk_content}})}\n\n"
+            # 流式结束
             yield f"data: {json.dumps({'type': 'content_block_stop', 'index': 0})}\n\n"
-            yield f"data: {json.dumps({'type': 'message_delta', 'delta': {'stop_reason': 'end_turn', 'stop_sequence': None}, 'usage': {'output_tokens': len(full_content) // 4}})}\n\n"
+            yield f"data: {json.dumps({'type': 'message_delta', 'delta': {'stop_reason': 'end_turn', 'stop_sequence': None}, 'usage': {'output_tokens': 0}})}\n\n"
             yield f"data: {json.dumps({'type': 'message_stop'})}\n\n"
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(
-            resume_stream_generator(),
+            stream_generator(),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -410,7 +396,7 @@ async def anthropic_messages(
                 content = reasoning_content
 
             # 打印模型返回的原始内容（用于调试工具调用）
-            print(f"[ANTHROPIC] Raw content from model: {content[:500]}{'...' if len(content) > 500 else ''}")
+            # print(f"[ANTHROPIC] Raw content from model: {content[:500]}{'...' if len(content) > 500 else ''}")
 
             # 获取 usage
             usage = getattr(response, 'usage', {}) or {}

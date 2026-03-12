@@ -1,0 +1,279 @@
+{
+  "llamaccp": {
+    "name": "llama",
+    "npm": "@ai-sdk/openai-compatible",
+    "models": {
+      "qwen3.5-0.8b": {
+        "name": "qwen3.5-0.8b"
+      },
+      "qwen3.5-0.8b-vision": {
+        "name": "qwen3.5-0.8b-vision",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-0.8b-instruct-general": {
+        "name": "qwen3.5-0.8b-instruct-general"
+      },
+      "qwen3.5-0.8b-instruct-reasoning": {
+        "name": "qwen3.5-0.8b-instruct-reasoning"
+      },
+      "qwen3.5-2b": {
+        "name": "qwen3.5-2b"
+      },
+      "qwen3.5-2b-vision": {
+        "name": "qwen3.5-2b-vision",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-2b-instruct-general": {
+        "name": "qwen3.5-2b-instruct-general"
+      },
+      "qwen3.5-2b-instruct-reasoning": {
+        "name": "qwen3.5-2b-instruct-reasoning"
+      },
+      "qwen3.5-4b-ud-q4": {
+        "name": "qwen3.5-4b-ud-q4"
+      },
+      "qwen3.5-4b-ud-q4-vision": {
+        "name": "qwen3.5-4b-ud-q4-vision",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-4b-ud-q4-instruct-general": {
+        "name": "qwen3.5-4b-ud-q4-instruct-general"
+      },
+      "qwen3.5-4b-ud-q4-instruct-reasoning": {
+        "name": "qwen3.5-4b-ud-q4-instruct-reasoning"
+      },
+      "qwen3.5-4b-ud-q4-thinking-general": {
+        "name": "qwen3.5-4b-ud-q4-thinking-general"
+      },
+      "qwen3.5-4b-ud-q4-thinking-coding": {
+        "name": "qwen3.5-4b-ud-q4-thinking-coding"
+      },
+      "qwen3.5-9b-ud-q4": {
+        "name": "qwen3.5-9b-ud-q4"
+      },
+      "qwen3.5-9b-ud-q4-vision": {
+        "name": "qwen3.5-9b-ud-q4-vision",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-9b-ud-q4-instruct-general": {
+        "name": "qwen3.5-9b-ud-q4-instruct-general"
+      },
+      "qwen3.5-9b-ud-q4-instruct-reasoning": {
+        "name": "qwen3.5-9b-ud-q4-instruct-reasoning"
+      },
+      "qwen3.5-9b-ud-q4-thinking-general": {
+        "name": "qwen3.5-9b-ud-q4-thinking-general"
+      },
+      "qwen3.5-9b-ud-q4-thinking-coding": {
+        "name": "qwen3.5-9b-ud-q4-thinking-coding"
+      },
+      "qwen3.5-27b-ud-q4": {
+        "name": "qwen3.5-27b-ud-q4"
+      },
+      "qwen3.5-27b-ud-q4-instruct-general": {
+        "name": "qwen3.5-27b-ud-q4-instruct-general"
+      },
+      "qwen3.5-27b-ud-q4-instruct-reasoning": {
+        "name": "qwen3.5-27b-ud-q4-instruct-reasoning"
+      },
+      "qwen3.5-27b-ud-q4-thinking-general": {
+        "name": "qwen3.5-27b-ud-q4-thinking-general"
+      },
+      "qwen3.5-27b-ud-q4-thinking-coding": {
+        "name": "qwen3.5-27b-ud-q4-thinking-coding"
+      },
+      "qwen3.5-27b-ud-q4-xl-1": {
+        "name": "qwen3.5-27b-ud-q4-xl-1"
+      },
+      "qwen3.5-27b-ud-q4-xl-1-instruct-general": {
+        "name": "qwen3.5-27b-ud-q4-xl-1-instruct-general"
+      },
+      "qwen3.5-27b-ud-q4-xl-1-instruct-reasoning": {
+        "name": "qwen3.5-27b-ud-q4-xl-1-instruct-reasoning"
+      },
+      "qwen3.5-27b-ud-q4-xl-1-thinking-general": {
+        "name": "qwen3.5-27b-ud-q4-xl-1-thinking-general"
+      },
+      "qwen3.5-27b-ud-q4-xl-1-thinking-coding": {
+        "name": "qwen3.5-27b-ud-q4-xl-1-thinking-coding"
+      },
+      "qwen3.5-27b-vl": {
+        "name": "qwen3.5-27b-vl",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-27b-vl-instruct-general": {
+        "name": "qwen3.5-27b-vl-instruct-general",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-27b-vl-instruct-reasoning": {
+        "name": "qwen3.5-27b-vl-instruct-reasoning",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-27b-vl-thinking-general": {
+        "name": "qwen3.5-27b-vl-thinking-general",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-27b-vl-thinking-coding": {
+        "name": "qwen3.5-27b-vl-thinking-coding",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-instruct-general": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-instruct-general"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-instruct-reasoning": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-instruct-reasoning"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-thinking-general": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-thinking-general"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-thinking-coding": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-thinking-coding"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-1": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-1"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-1-instruct-general": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-1-instruct-general"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-1-instruct-reasoning": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-1-instruct-reasoning"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-1-thinking-general": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-1-thinking-general"
+      },
+      "qwen3.5-35b-a3b-ud-q4-xl-1-thinking-coding": {
+        "name": "qwen3.5-35b-a3b-ud-q4-xl-1-thinking-coding"
+      },
+      "qwen3.5-35b-a3b-vision": {
+        "name": "qwen3.5-35b-a3b-vision",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen3.5-122b-a10b": {
+        "name": "qwen3.5-122b-a10b"
+      },
+      "qwen3.5-122b-a10b-instruct-general": {
+        "name": "qwen3.5-122b-a10b-instruct-general"
+      },
+      "qwen3.5-122b-a10b-instruct-reasoning": {
+        "name": "qwen3.5-122b-a10b-instruct-reasoning"
+      },
+      "qwen3.5-122b-a10b-thinking-general": {
+        "name": "qwen3.5-122b-a10b-thinking-general"
+      },
+      "qwen3.5-122b-a10b-thinking-coding": {
+        "name": "qwen3.5-122b-a10b-thinking-coding"
+      },
+      "qwen3-30b-a3b-instruct": {
+        "name": "qwen3-30b-a3b-instruct"
+      },
+      "qwen3-30b-a3b-thinking": {
+        "name": "qwen3-30b-a3b-thinking"
+      },
+      "deepseek-r1-0528-qwen3-8b-ud-q4-xl": {
+        "name": "deepseek-r1-0528-qwen3-8b-ud-q4-xl"
+      },
+      "glm-4.7-flash-ud-q4": {
+        "name": "glm-4.7-flash-ud-q4"
+      },
+      "glm-4.7-flash-q5": {
+        "name": "glm-4.7-flash-q5"
+      },
+      "glm-4-32b-0414-ud-q4-xl": {
+        "name": "glm-4-32b-0414-ud-q4-xl"
+      },
+      "glm-4.6v-flash": {
+        "name": "glm-4.6v-flash",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "glm-4.1v-9b-thinking": {
+        "name": "glm-4.1v-9b-thinking",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "deepseek-r1-distill-llama-8b-ud-q4-xl": {
+        "name": "deepseek-r1-distill-llama-8b-ud-q4-xl"
+      },
+      "deepseek-r1-distill-qwen-14b-q4-m": {
+        "name": "deepseek-r1-distill-qwen-14b-q4-m"
+      },
+      "deepseek-r1-distill-qwen-32b-q4-m": {
+        "name": "deepseek-r1-distill-qwen-32b-q4-m"
+      },
+      "gemma-3-12b-it-ud-q4-xl": {
+        "name": "gemma-3-12b-it-ud-q4-xl"
+      },
+      "gemma-3-27b-it-ud-q4-xl": {
+        "name": "gemma-3-27b-it-ud-q4-xl"
+      },
+      "ernie-4.5-21b-thinking": {
+        "name": "ernie-4.5-21b-thinking"
+      },
+      "phi-4-reasoning-plus-ud-q4-xl": {
+        "name": "phi-4-reasoning-plus-ud-q4-xl"
+      },
+      "hy-mt1.5-1.8b-q4-m": {
+        "name": "hy-mt1.5-1.8b-q4-m"
+      },
+      "hy-mt1.5-7b-q4-m": {
+        "name": "hy-mt1.5-7b-q4-m"
+      },
+      "internvl3-8b-q5": {
+        "name": "internvl3-8b-q5",
+        "capabilities": {
+          "vision": true,
+          "images": true
+        }
+      },
+      "qwen-coder-30b-a3b-instruct": {
+        "name": "qwen-coder-30b-a3b-instruct"
+      },
+      "qwen-coder-30b-a3b-instruct-1m": {
+        "name": "qwen-coder-30b-a3b-instruct-1m"
+      },
+      "snowflake-arctic-embed-l": {
+        "name": "snowflake-arctic-embed-l"
+      }
+    },
+    "options": {
+      "baseURL": "http://localhost:38520/v1"
+    }
+  }
+}

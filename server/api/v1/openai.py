@@ -178,6 +178,14 @@ async def chat_completions(request: ChatRequest):
     
     print(f"[OpenAI] Received chat request: model={request.model}, stream={request.stream}, messages_count={len(request.messages)}")
     
+    # 打印完整的请求内容用于调试
+    import json
+    try:
+        request_dict = request.model_dump()
+        print(f"[DEBUG] Full request: {json.dumps(request_dict, ensure_ascii=False, indent=2)}")
+    except Exception as e:
+        print(f"[DEBUG] Failed to dump request: {e}")
+    
     if not _model_manager:
         raise HTTPException(status_code=500, detail="Model manager not initialized")
     
@@ -214,6 +222,7 @@ async def chat_completions(request: ChatRequest):
             "enable_thinking": model_config.enable_thinking,
             "parallel": model_config.parallel,
             "batch_size": model_config.batch_size,
+            "ubatch_size": getattr(model_config, 'ubatch_size', None),
             "tags": model_config.tags,
             "description": model_config.description,
             "cache_type_k": model_config.cache_type_k,
@@ -309,7 +318,7 @@ async def chat_completions(request: ChatRequest):
         if request.tools:
             config["tools"] = request.tools
         if request.tool_choice:
-            config["tool_choice"] = tool_choice
+            config["tool_choice"] = request.tool_choice
         
         if model_config and model_config.enable_thinking is not None:
             config["enable_thinking"] = model_config.enable_thinking

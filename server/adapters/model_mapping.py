@@ -46,6 +46,9 @@ def map_anthropic_to_openai_model(anthropic_model: str) -> str:
     Returns:
         本地模型名，如 "qwen3.5-27b-ud-q4-xl-1"
     """
+    # 如果是本地模型名，直接返回
+    if anthropic_model.startswith("qwen") or anthropic_model.startswith("glm") or anthropic_model.startswith("deepseek") or anthropic_model.startswith("gemma") or anthropic_model.startswith("phi") or anthropic_model.startswith("ernie"):
+        return anthropic_model
     return ANTHROPIC_TO_OPENAI_MODEL_MAP.get(anthropic_model, "qwen3.5-27b-ud-q4-xl-1")
 
 

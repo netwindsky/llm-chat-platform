@@ -20,7 +20,7 @@ class BackendFactory:
         cls._backends[name.lower()] = backend_class
     
     @classmethod
-    def create(cls, backend_type: str, config: Dict[str, Any]) -> InferenceBackend:
+    def create(cls, backend_type: str, config: Dict[str, Any], port: int = 38521) -> InferenceBackend:
         """创建后端实例"""
         backend_type = backend_type.lower()
         
@@ -30,11 +30,14 @@ class BackendFactory:
                 f"Available: {list(cls._backends.keys())}"
             )
         
-        if backend_type in cls._instances:
-            return cls._instances[backend_type]
+        # 使用 (backend_type, port) 作为key，支持多实例
+        key = f"{backend_type}_{port}"
+        if key in cls._instances:
+            return cls._instances[key]
         
-        backend = cls._backends[backend_type](config)
-        cls._instances[backend_type] = backend
+        backend_class = cls._backends[backend_type]
+        backend = backend_class(config, port)
+        cls._instances[key] = backend
         
         return backend
     

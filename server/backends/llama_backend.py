@@ -76,10 +76,11 @@ def parse_tool_calls(content: str) -> Optional[List[Dict[str, Any]]]:
 class LlamaBackend(InferenceBackend):
     """llama.cpp 后端实现"""
     
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any], port: int = 38521):
         super().__init__(config)
         self._process: Optional[subprocess.Popen] = None
-        self._server_url = config.get("server_url", "http://127.0.0.1:8080")
+        self._port = port
+        self._server_url = f"http://127.0.0.1:{port}"
         self._model_path = ""
         self._model_config = {}
         self._lock = asyncio.Lock()
@@ -127,9 +128,9 @@ class LlamaBackend(InferenceBackend):
             ngl = model_config.get("gpu_layers", 99)
             parallel = model_config.get("parallel", 1)
             batch_size = model_config.get("batch_size", 2048)
+            ubatch_size = model_config.get("ubatch_size") or batch_size
             
-            # 使用固定端口
-            port = 38521
+            port = model_config.get("port", self._port)
             
             cmd = [
                 server_path,
@@ -140,7 +141,7 @@ class LlamaBackend(InferenceBackend):
                 "-ngl", str(ngl),
                 "-np", str(parallel),
                 "-b", str(batch_size),
-                "-ub", str(batch_size),
+                "-ub", str(ubatch_size),
                 "-fa", "on",
                 "--cont-batching"
             ]
@@ -153,13 +154,13 @@ class LlamaBackend(InferenceBackend):
             if cache_type_v:
                 cmd.extend(["--cache-type-v", cache_type_v])
             
-            print(f"[DEBUG] Concurrency config: parallel={parallel}, batch_size={batch_size}")
+            # print(f"[DEBUG] Concurrency config: parallel={parallel}, batch_size={batch_size}, ubatch_size={ubatch_size}")
             
             # 如果是推理模型，启用思考模式
             model_type = model_config.get("type", "language-model")
             if model_type == "reasoning-model":
                 cmd.extend(["--reasoning-format", "deepseek"])
-                print(f"[DEBUG] Enabling reasoning mode for {model_config.get('id', 'unknown')}")
+                # print(f"[DEBUG] Enabling reasoning mode for {model_config.get('id', 'unknown')}")
             
             # 如果是视觉模型，添加 mmproj 参数
             if model_type == "vision-language-model":
@@ -167,11 +168,13 @@ class LlamaBackend(InferenceBackend):
                 if mmproj_path and os.path.exists(mmproj_path):
                     mmproj_rel = to_relative(mmproj_path)
                     cmd.extend(["--mmproj", mmproj_rel])
-                    print(f"[DEBUG] Enabling vision mode with mmproj: {mmproj_rel}")
+                    # print(f"[DEBUG] Enabling vision mode with mmproj: {mmproj_rel}")
                 else:
                     print(f"[WARNING] Vision model without mmproj: {model_config.get('id', 'unknown')}")
             
-            print(f"[DEBUG] Full command: {' '.join(cmd)}")
+            # 打印 llama-server 启动命令（用于调试参数）
+            print(f"\n[LLAMA] Starting llama-server:")
+            print(f"        {' '.join(cmd)}\n")
             
             # 获取项目根目录作为工作目录 (LLM 目录)
             cwd = project_root
@@ -192,7 +195,7 @@ class LlamaBackend(InferenceBackend):
             self._server_url = f"http://127.0.0.1:{port}"
             
             # 先设置初始状态为 loading
-            print(f"initialize: setting _model_info for {model_config.get('id', 'unknown')}")
+            # print(f"initialize: setting _model_info for {model_config.get('id', 'unknown')}")
             self._model_info = ModelInfo(
                 id=model_config.get("id", "unknown"),
                 name=model_config.get("name", "Unknown"),
@@ -210,7 +213,7 @@ class LlamaBackend(InferenceBackend):
                 description=model_config.get("description", ""),
                 status=ModelStatus.LOADING  # 设置为加载中
             )
-            print(f"initialize: _model_info set, status={self._model_info.status}")
+            # print(f"initialize: _model_info set, status={self._model_info.status}")
             
             # 创建后台任务等待服务器启动
             asyncio.create_task(self._wait_and_set_status())
@@ -219,7 +222,7 @@ class LlamaBackend(InferenceBackend):
             return True
     
     async def _read_process_output(self):
-        """读取 llama-server 的输出并打印"""
+        """读取 llama-server 的输出（不打印）"""
         if not self._process:
             return
         
@@ -233,7 +236,7 @@ class LlamaBackend(InferenceBackend):
                         line = stream.readline()
                         if not line:
                             break
-                        print(f"[llama-server {name}] {line.decode('utf-8', errors='ignore').rstrip()}")
+                        # print(f"[llama-server {name}] {line.decode('utf-8', errors='ignore').rstrip()}")
                     except:
                         break
             
@@ -242,12 +245,12 @@ class LlamaBackend(InferenceBackend):
             threading.Thread(target=read_stream, args=(self._process.stderr, "stderr"), daemon=True).start()
             
         except Exception as e:
-            print(f"Error reading process output: {e}")
+            pass  # 静默忽略
     
     async def _wait_and_set_status(self):
         """后台等待服务器启动并更新状态"""
         try:
-            print(f"_wait_and_set_status: waiting for {self._model_info.id if self._model_info else 'unknown'}")
+            # print(f"_wait_and_set_status: waiting for {self._model_info.id if self._model_info else 'unknown'}")
             
             # 等待服务器启动，同时检查进程是否还在运行
             start_time = datetime.now()
@@ -256,7 +259,7 @@ class LlamaBackend(InferenceBackend):
             while (datetime.now() - start_time).seconds < 300:  # 最多等待 300 秒（5分钟）
                 # 检查进程是否还在运行
                 if self._process and self._process.poll() is not None:
-                    print(f"[ERROR] llama-server process exited with code: {self._process.returncode}")
+                    # print(f"[ERROR] llama-server process exited with code: {self._process.returncode}")
                     self._process = None
                     if self._model_info:
                         self._model_info.status = ModelStatus.ERROR
@@ -272,23 +275,23 @@ class LlamaBackend(InferenceBackend):
                     pass
                 except Exception as e:
                     # 其他错误，记录但继续等待
-                    print(f"[DEBUG] Wait error: {e}")
+                    pass
                 
                 await asyncio.sleep(1)
             
             if server_ready:
                 # 服务器启动成功，只更新状态字段
-                print(f"_wait_and_set_status: server ready, updating status")
+                # print(f"_wait_and_set_status: server ready, updating status")
                 if self._model_info:
                     self._model_info.status = ModelStatus.LOADED
-                print(f"Model {self._model_info.name if self._model_info else 'unknown'} fully loaded and ready")
+                # print(f"Model {self._model_info.name if self._model_info else 'unknown'} fully loaded and ready")
             else:
-                print(f"Model loading timeout: server did not start within 300 seconds")
+                # print(f"Model loading timeout: server did not start within 300 seconds")
                 self._process = None
                 if self._model_info:
                     self._model_info.status = ModelStatus.ERROR
         except Exception as e:
-            print(f"Error in _wait_and_set_status: {e}")
+            # print(f"Error in _wait_and_set_status: {e}")
             import traceback
             traceback.print_exc()
             self._process = None
@@ -299,7 +302,7 @@ class LlamaBackend(InferenceBackend):
         """等待服务器启动并加载模型完成"""
         import httpx
         
-        print(f"_wait_for_server: waiting for {self._server_url} (timeout={timeout}s)")
+        # print(f"_wait_for_server: waiting for {self._server_url} (timeout={timeout}s)")
         start_time = datetime.now()
         server_started = False
         
@@ -311,7 +314,7 @@ class LlamaBackend(InferenceBackend):
                     if health_response.status_code == 200:
                         if not server_started:
                             elapsed = (datetime.now() - start_time).seconds
-                            print(f"_wait_for_server: server started after {elapsed}s, waiting for model load...")
+                            # print(f"_wait_for_server: server started after {elapsed}s, waiting for model load...")
                             server_started = True
                         # 服务器已启动，再检查模型是否加载完成
                         # 通过发送一个简单请求来验证
@@ -328,7 +331,7 @@ class LlamaBackend(InferenceBackend):
                             # 如果返回 200 或 4xx 错误（不是 503），说明模型已加载
                             if test_response.status_code != 503:
                                 elapsed = (datetime.now() - start_time).seconds
-                                print(f"_wait_for_server: model ready after {elapsed}s")
+                                # print(f"_wait_for_server: model ready after {elapsed}s")
                                 return True
                         except:
                             pass
@@ -337,7 +340,7 @@ class LlamaBackend(InferenceBackend):
             await asyncio.sleep(1)
         
         elapsed = (datetime.now() - start_time).seconds
-        print(f"_wait_for_server: timeout after {elapsed}s")
+        # print(f"_wait_for_server: timeout after {elapsed}s")
         raise TimeoutError("Server failed to start within timeout")
     
     async def generate(
@@ -428,11 +431,14 @@ class LlamaBackend(InferenceBackend):
         if repeat_penalty is not None:
             payload["repeat_penalty"] = repeat_penalty
         
+        # 打印实际使用的参数
+        print(f"[LLAMA] Request params: temp={payload.get('temperature')}, top_p={payload.get('top_p')}, top_k={payload.get('top_k')}, presence={payload.get('presence_penalty')}, repeat={payload.get('repeat_penalty')}, max_tokens={payload.get('max_tokens')}")
+        
         # 支持 tools 参数
         tools = config.get("tools")
         if tools:
             payload["tools"] = tools
-            print(f"[DEBUG] Adding {len(tools)} tools to payload")
+            # print(f"[DEBUG] Adding {len(tools)} tools to payload")
         
         tool_choice = config.get("tool_choice")
         if tool_choice:
@@ -442,7 +448,7 @@ class LlamaBackend(InferenceBackend):
         enable_thinking = config.get("enable_thinking")
         if enable_thinking is not None:
             payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
-            print(f"[DEBUG] chat_template_kwargs: enable_thinking={enable_thinking}")
+            # print(f"[DEBUG] chat_template_kwargs: enable_thinking={enable_thinking}")
         
         # 重试逻辑：如果模型正在加载，等待并重试
         max_retries = 10
@@ -451,25 +457,25 @@ class LlamaBackend(InferenceBackend):
         for attempt in range(max_retries):
             try:
                 async with httpx.AsyncClient() as client:
-                    print(f"llama_backend.chat: sending request to {self._server_url}/v1/chat/completions")
+                    # print(f"llama_backend.chat: sending request to {self._server_url}/v1/chat/completions")
                     response = await client.post(
                         f"{self._server_url}/v1/chat/completions",
                         json=payload,
-                        timeout=180.0
+                        timeout=300.0
                     )
-                    print(f"llama_backend.chat: response status={response.status_code}, content={response.text[:200]}")
+                    # print(f"llama_backend.chat: response status={response.status_code}, content={response.text[:200]}")
                     result = response.json()
                     
                     # 检查是否是 503 错误（模型加载中）
                     if 'error' in result and result['error'].get('code') == 503:
                         if attempt < max_retries - 1:
-                            print(f"Model loading, retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries})")
+                            # print(f"Model loading, retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries})")
                             await asyncio.sleep(retry_delay)
                             continue
                         else:
                             raise Exception("Model loading timeout. Please try again later.")
                     
-                    print(f"llama-server response: {result}")
+                    # print(f"llama-server response: {result}")
                     
                     # 直接透传 llama-server 的响应，保持原始数据结构
                     # 只添加 thinking 字段到 message（如果存在 reasoning_content）
@@ -487,7 +493,7 @@ class LlamaBackend(InferenceBackend):
                     )
             except Exception as e:
                 if attempt < max_retries - 1:
-                    print(f"Request failed, retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries}): {e}")
+                    # print(f"Request failed, retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries}): {e}")
                     await asyncio.sleep(retry_delay)
                 else:
                     raise e
@@ -557,8 +563,7 @@ class LlamaBackend(InferenceBackend):
                             # 调试：打印 llama-server 返回的原始字段
                             delta = chunk_data.get("choices", [{}])[0].get("delta", {})
                             if delta and (delta.get('reasoning_content') or delta.get('content')):
-                                print(f"[LLAMA-SERVER] delta keys: {list(delta.keys())}, content='{delta.get('content', '')}', thinking='{delta.get('thinking', '')}', reasoning_content='{delta.get('reasoning_content', '')}'")
-                                print(f"[LLAMA-SERVER] Full chunk_data.choices: {chunk_data.get('choices')}")
+                                pass  # 静默处理
                             
                             yield ChatChunk(
                                 id=chunk_data.get("id", "chatcmpl-stream"),
@@ -568,7 +573,7 @@ class LlamaBackend(InferenceBackend):
                                 usage=chunk_data.get("usage")
                             )
                         except Exception as e:
-                            print(f"Error processing chunk: {e}")
+                            # print(f"Error processing chunk: {e}")
                             pass
     
     async def get_model_info(self) -> Optional[ModelInfo]:

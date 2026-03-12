@@ -67,8 +67,11 @@ class BackendManager:
         backend_config = {
             "server_path": f"runtimes/{backend_type}/bin/{backend_type}-server.exe"
         }
-        print(f"load_model: creating backend for {model_id}")
-        backend = BackendFactory.create(backend_type, backend_config)
+        
+        # 从模型配置中获取端口，如果未指定则使用默认值
+        port = model_config.get("port", 38521)
+        print(f"load_model: creating backend for {model_id} with port={port}")
+        backend = BackendFactory.create(backend_type, backend_config, port)
         
         # 初始化模型（在锁外，耗时操作）
         print(f"load_model: initializing backend for {model_id} with type={model_type}")

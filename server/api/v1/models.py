@@ -226,6 +226,7 @@ async def load_model(model_id: str, request: ModelLoadRequest = None):
             "enable_thinking": model.enable_thinking,
             "parallel": model.parallel,
             "batch_size": model.batch_size,
+            "ubatch_size": getattr(model, 'ubatch_size', None),
             "tags": model.tags,
             "description": model.description,
             "cache_type_k": model.cache_type_k,

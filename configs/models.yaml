@@ -858,230 +858,232 @@ models:
 
 # ============ Qwen3.5 中参数系列 (27B/35B) ============
 
-# ----------------------------------------
-# Qwen3.5-27B
-# 规模：27B | 量化：Q4_K_XL
-# 标签：chat, general
-# 说明：Qwen3.5 27B 纯语言模型版本，无视觉功能
-# 参数配置:
-#   - temperature=0.7 (温度，控制随机性)
-#   - top_p=0.8 (核采样概率)
-#   - top_k=20 (Top-K 采样)
-#   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
-#   - repetition_penalty=1.0 (重复惩罚，避免重复)
-#   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
-#   - parallel=1 (并行请求数，-np)
-#   - batch_size=512 (批次大小，-b)
-#   - gpu_layers=99 (GPU 层数，-ngl)
-# ----------------------------------------
-- id: qwen3.5-27b
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
-  name: Qwen3.5-27B
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  tags:
-    - chat
-    - general
-  description: Qwen3.5 27B 纯语言模型版本，无视觉功能
-  # --- 运行参数 ---
-  backend: llama
-  max_context: 248320
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  enable_thinking: False
-  presence_penalty: 1.5
-  repetition_penalty: 1.0
-  parallel: 1
-  batch_size: 512
-  gpu_layers: 99
-  cache_type_k: q4_0
-  cache_type_v: q4_0
-
-# ----------------------------------------
-# Qwen3.5-27B (指令-通用)
-# 规模：27B | 量化：Q4_K_XL
-# 标签：chat, chinese, instruct
-# 说明：Qwen3.5-27B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-# 参数配置:
-#   - temperature=0.7 (温度，控制随机性)
-#   - top_p=0.8 (核采样概率)
-#   - top_k=20 (Top-K 采样)
-#   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
-#   - repetition_penalty=1.0 (重复惩罚，避免重复)
-#   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
-#   - parallel=1 (并行请求数，-np)
-#   - batch_size=512 (批次大小，-b)
-#   - gpu_layers=99 (GPU 层数，-ngl)
-# ----------------------------------------
-- id: qwen3.5-27b-instruct-general
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
-  name: Qwen3.5-27B (指令-通用)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  tags:
-    - chat
-    - chinese
-    - instruct
-  description: Qwen3.5-27B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
-  # --- 运行参数 ---
-  backend: llama
-  max_context: 248320
-  default_temp: 0.7
-  default_top_p: 0.8
-  default_top_k: 20
-  enable_thinking: False
-  presence_penalty: 1.5
-  repetition_penalty: 1.0
-  parallel: 1
-  batch_size: 512
-  gpu_layers: 99
-  cache_type_k: q4_0
-  cache_type_v: q4_0
-
-# ----------------------------------------
-# Qwen3.5-27B (指令-推理)
-# 规模：27B | 量化：Q4_K_XL
-# 标签：chat, chinese, instruct, reasoning
-# 说明：Qwen3.5-27B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-# 参数配置:
-#   - temperature=1.0 (温度，控制随机性)
-#   - top_p=0.95 (核采样概率)
-#   - top_k=20 (Top-K 采样)
-#   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
-#   - repetition_penalty=1.0 (重复惩罚，避免重复)
-#   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
-#   - parallel=1 (并行请求数，-np)
-#   - batch_size=512 (批次大小，-b)
-#   - gpu_layers=99 (GPU 层数，-ngl)
-# ----------------------------------------
-- id: qwen3.5-27b-instruct-reasoning
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
-  name: Qwen3.5-27B (指令-推理)
-  type: language-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  tags:
-    - chat
-    - chinese
-    - instruct
-    - reasoning
-  description: Qwen3.5-27B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  # --- 运行参数 ---
-  backend: llama
-  max_context: 248320
-  default_temp: 1.0
-  default_top_p: 0.95
-  default_top_k: 20
-  enable_thinking: False
-  presence_penalty: 1.5
-  repetition_penalty: 1.0
-  parallel: 1
-  batch_size: 512
-  gpu_layers: 99
-  cache_type_k: q4_0
-  cache_type_v: q4_0
-
-# ----------------------------------------
-# Qwen3.5-27B (思考-通用)
-# 规模：27B | 量化：Q4_K_XL
-# 标签：chat, chinese, thinking, reasoning
-# 说明：Qwen3.5-27B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-# 参数配置:
-#   - temperature=1.0 (温度，控制随机性)
-#   - top_p=0.95 (核采样概率)
-#   - top_k=20 (Top-K 采样)
-#   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
-#   - repetition_penalty=1.0 (重复惩罚，避免重复)
-#   - enable_thinking=true (启用思考模式)
-#   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
-#   - parallel=1 (并行请求数，-np)
-#   - batch_size=512 (批次大小，-b)
-#   - gpu_layers=99 (GPU 层数，-ngl)
-# ----------------------------------------
-- id: qwen3.5-27b-thinking-general
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
-  name: Qwen3.5-27B (思考-通用)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  tags:
-    - chat
-    - chinese
-    - thinking
-    - reasoning
-  description: Qwen3.5-27B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
-  # --- 运行参数 ---
-  backend: llama
-  max_context: 248320
-  default_temp: 1.0
-  default_top_p: 0.95
-  default_top_k: 20
-  enable_thinking: True
-  presence_penalty: 1.5
-  repetition_penalty: 1.0
-  parallel: 1
-  batch_size: 512
-  gpu_layers: 99
-  cache_type_k: q4_0
-  cache_type_v: q4_0
-
-# ----------------------------------------
-# Qwen3.5-27B (思考-编码)
-# 规模：27B | 量化：Q4_K_XL
-# 标签：chat, chinese, thinking, coding
-# 说明：Qwen3.5-27B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-# 参数配置:
-#   - temperature=0.6 (温度，控制随机性)
-#   - top_p=0.95 (核采样概率)
-#   - top_k=20 (Top-K 采样)
-#   - presence_penalty=0.0 (存在惩罚，鼓励新话题)
-#   - repetition_penalty=1.0 (重复惩罚，避免重复)
-#   - enable_thinking=true (启用思考模式)
-#   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
-#   - parallel=1 (并行请求数，-np)
-#   - batch_size=512 (批次大小，-b)
-#   - gpu_layers=99 (GPU 层数，-ngl)
-# ----------------------------------------
-- id: qwen3.5-27b-thinking-coding
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
-  name: Qwen3.5-27B (思考-编码)
-  type: reasoning-model
-  category: Qwen
-  format: gguf
-  size: 27B
-  quantization: Q4_K_XL
-  tags:
-    - chat
-    - chinese
-    - thinking
-    - coding
-  description: Qwen3.5-27B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
-  # --- 运行参数 ---
-  backend: llama
-  max_context: 248320
-  default_temp: 0.6
-  default_top_p: 0.95
-  default_top_k: 20
-  enable_thinking: True
-  presence_penalty: 0.0
-  repetition_penalty: 1.0
-  parallel: 1
-  batch_size: 512
-  gpu_layers: 99
-  cache_type_k: q4_0
-  cache_type_v: q4_0
-
+# # ----------------------------------------
+# # Qwen3.5-27B
+# # 规模：27B | 量化：Q4_K_XL
+# # 标签：chat, general
+# # 说明：Qwen3.5 27B 纯语言模型版本，无视觉功能
+# # 参数配置:
+# #   - temperature=0.7 (温度，控制随机性)
+# #   - top_p=0.8 (核采样概率)
+# #   - top_k=20 (Top-K 采样)
+# #   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
+# #   - repetition_penalty=1.0 (重复惩罚，避免重复)
+# #   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
+# #   - parallel=1 (并行请求数，-np)
+# #   - batch_size=512 (批次大小，-b)
+# #   - gpu_layers=99 (GPU 层数，-ngl)
+# # ----------------------------------------
+# - id: qwen3.5-27b
+#   path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+#   name: Qwen3.5-27B
+#   type: language-model
+#   category: Qwen
+#   format: gguf
+#   size: 27B
+#   quantization: Q4_K_XL
+#   tags:
+#     - chat
+#     - general
+#   description: Qwen3.5 27B 纯语言模型版本，无视觉功能
+#   # --- 运行参数 ---
+#   backend: llama
+#   max_context: 248320
+#   default_temp: 0.7
+#   default_top_p: 0.8
+#   default_top_k: 20
+#   enable_thinking: False
+#   presence_penalty: 1.5
+#   repetition_penalty: 1.0
+#   parallel: 1
+#   batch_size: 2048
+#   ubatch_size: 512
+#   gpu_layers: 99
+#   cache_type_k: q4_0
+#   cache_type_v: q4_0
+# 
+# # ----------------------------------------
+# # Qwen3.5-27B (指令-通用)
+# # 规模：27B | 量化：Q4_K_XL
+# # 标签：chat, chinese, instruct
+# # 说明：Qwen3.5-27B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+# # 参数配置:
+# #   - temperature=0.7 (温度，控制随机性)
+# #   - top_p=0.8 (核采样概率)
+# #   - top_k=20 (Top-K 采样)
+# #   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
+# #   - repetition_penalty=1.0 (重复惩罚，避免重复)
+# #   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
+# #   - parallel=1 (并行请求数，-np)
+# #   - batch_size=512 (批次大小，-b)
+# #   - gpu_layers=99 (GPU 层数，-ngl)
+# # ----------------------------------------
+# - id: qwen3.5-27b-instruct-general
+#   path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+#   name: Qwen3.5-27B (指令-通用)
+#   type: language-model
+#   category: Qwen
+#   format: gguf
+#   size: 27B
+#   quantization: Q4_K_XL
+#   tags:
+#     - chat
+#     - chinese
+#     - instruct
+#   description: Qwen3.5-27B 通用任务指令模式 (temp=0.7, top_p=0.8, presence_penalty=1.5)
+#   # --- 运行参数 ---
+#   backend: llama
+#   max_context: 248320
+#   default_temp: 0.7
+#   default_top_p: 0.8
+#   default_top_k: 20
+#   enable_thinking: False
+#   presence_penalty: 1.5
+#   repetition_penalty: 1.0
+#   parallel: 1
+#   batch_size: 512
+#   gpu_layers: 99
+#   cache_type_k: q4_0
+#   cache_type_v: q4_0
+# 
+# # ----------------------------------------
+# # Qwen3.5-27B (指令-推理)
+# # 规模：27B | 量化：Q4_K_XL
+# # 标签：chat, chinese, instruct, reasoning
+# # 说明：Qwen3.5-27B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+# # 参数配置:
+# #   - temperature=1.0 (温度，控制随机性)
+# #   - top_p=0.95 (核采样概率)
+# #   - top_k=20 (Top-K 采样)
+# #   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
+# #   - repetition_penalty=1.0 (重复惩罚，避免重复)
+# #   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
+# #   - parallel=1 (并行请求数，-np)
+# #   - batch_size=512 (批次大小，-b)
+# #   - gpu_layers=99 (GPU 层数，-ngl)
+# # ----------------------------------------
+# - id: qwen3.5-27b-instruct-reasoning
+#   path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+#   name: Qwen3.5-27B (指令-推理)
+#   type: language-model
+#   category: Qwen
+#   format: gguf
+#   size: 27B
+#   quantization: Q4_K_XL
+#   tags:
+#     - chat
+#     - chinese
+#     - instruct
+#     - reasoning
+#   description: Qwen3.5-27B 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+#   # --- 运行参数 ---
+#   backend: llama
+#   max_context: 248320
+#   default_temp: 1.0
+#   default_top_p: 0.95
+#   default_top_k: 20
+#   enable_thinking: False
+#   presence_penalty: 1.5
+#   repetition_penalty: 1.0
+#   parallel: 1
+#   batch_size: 2048
+#   ubatch_size: 512
+#   gpu_layers: 99
+#   cache_type_k: q4_0
+#   cache_type_v: q4_0
+# 
+# # ----------------------------------------
+# # Qwen3.5-27B (思考-通用)
+# # 规模：27B | 量化：Q4_K_XL
+# # 标签：chat, chinese, thinking, reasoning
+# # 说明：Qwen3.5-27B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+# # 参数配置:
+# #   - temperature=1.0 (温度，控制随机性)
+# #   - top_p=0.95 (核采样概率)
+# #   - top_k=20 (Top-K 采样)
+# #   - presence_penalty=1.5 (存在惩罚，鼓励新话题)
+# #   - repetition_penalty=1.0 (重复惩罚，避免重复)
+# #   - enable_thinking=true (启用思考模式)
+# #   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
+# #   - parallel=1 (并行请求数，-np)
+# #   - batch_size=512 (批次大小，-b)
+# #   - gpu_layers=99 (GPU 层数，-ngl)
+# # ----------------------------------------
+# - id: qwen3.5-27b-thinking-general
+#   path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+#   name: Qwen3.5-27B (思考-通用)
+#   type: reasoning-model
+#   category: Qwen
+#   format: gguf
+#   size: 27B
+#   quantization: Q4_K_XL
+#   tags:
+#     - chat
+#     - chinese
+#     - thinking
+#     - reasoning
+#   description: Qwen3.5-27B 通用任务思考模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
+#   # --- 运行参数 ---
+#   backend: llama
+#   max_context: 248320
+#   default_temp: 1.0
+#   default_top_p: 0.95
+#   default_top_k: 20
+#   enable_thinking: True
+#   presence_penalty: 1.5
+#   repetition_penalty: 1.0
+#   parallel: 1
+#   batch_size: 512
+#   gpu_layers: 99
+#   cache_type_k: q4_0
+#   cache_type_v: q4_0
+# 
+# # ----------------------------------------
+# # Qwen3.5-27B (思考-编码)
+# # 规模：27B | 量化：Q4_K_XL
+# # 标签：chat, chinese, thinking, coding
+# # 说明：Qwen3.5-27B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+# # 参数配置:
+# #   - temperature=0.6 (温度，控制随机性)
+# #   - top_p=0.95 (核采样概率)
+# #   - top_k=20 (Top-K 采样)
+# #   - presence_penalty=0.0 (存在惩罚，鼓励新话题)
+# #   - repetition_penalty=1.0 (重复惩罚，避免重复)
+# #   - enable_thinking=true (启用思考模式)
+# #   - cache_type_k=q4_0, cache_type_v=q4_0 (KV Cache Q4 量化，节省显存)
+# #   - parallel=1 (并行请求数，-np)
+# #   - batch_size=512 (批次大小，-b)
+# #   - gpu_layers=99 (GPU 层数，-ngl)
+# # ----------------------------------------
+# - id: qwen3.5-27b-thinking-coding
+#   path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+#   name: Qwen3.5-27B (思考-编码)
+#   type: reasoning-model
+#   category: Qwen
+#   format: gguf
+#   size: 27B
+#   quantization: Q4_K_XL
+#   tags:
+#     - chat
+#     - chinese
+#     - thinking
+#     - coding
+#   description: Qwen3.5-27B 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
+#   # --- 运行参数 ---
+#   backend: llama
+#   max_context: 248320
+#   default_temp: 0.6
+#   default_top_p: 0.95
+#   default_top_k: 20
+#   enable_thinking: True
+#   presence_penalty: 0.0
+#   repetition_penalty: 1.0
+#   parallel: 1
+#   batch_size: 512
+#   gpu_layers: 99
+#   cache_type_k: q4_0
+#   cache_type_v: q4_0
+# 
 # ----------------------------------------
 # Qwen3.5-27B (UD-Q4)
 # 规模：27B | 量化：Q4_K_XL
@@ -1124,7 +1126,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 1024
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1168,7 +1171,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 1024
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1205,15 +1209,17 @@ models:
   description: Qwen3.5-27B (UD-Q4) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
   # --- 运行参数 ---
   backend: llama
-  max_context: 262144
+  max_context: 196608
   default_temp: 1.0
   default_top_p: 0.95
   default_top_k: 20
+  default_max_tokens: 16384
   enable_thinking: False
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 1024
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1259,7 +1265,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 1024
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1297,15 +1304,17 @@ models:
   description: Qwen3.5-27B (UD-Q4) 精确编码任务思考模式 (temp=0.6, top_p=0.95, presence_penalty=0.0)
   # --- 运行参数 ---
   backend: llama
-  max_context: 262144
+  max_context: 196608
   default_temp: 0.6
   default_top_p: 0.95
   default_top_k: 20
+  default_max_tokens: 16384
   enable_thinking: True
   presence_penalty: 0.0
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 1024
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1328,7 +1337,7 @@ models:
 #   - gpu_layers=99 (GPU 层数，-ngl)
 # ----------------------------------------
 - id: qwen3.5-27b-ud-q4-xl-1
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL_1.gguf
   name: Qwen3.5-27B (UD-Q4 XL) 更新版
   type: vision-language-model
   category: Qwen
@@ -1352,7 +1361,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1374,7 +1384,7 @@ models:
 #   - gpu_layers=99 (GPU 层数，-ngl)
 # ----------------------------------------
 - id: qwen3.5-27b-ud-q4-xl-1-instruct-general
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL_1.gguf
   name: Qwen3.5-27B (UD-Q4 XL) 更新版 (指令-通用)
   type: language-model
   category: Qwen
@@ -1396,7 +1406,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1418,7 +1429,7 @@ models:
 #   - gpu_layers=99 (GPU 层数，-ngl)
 # ----------------------------------------
 - id: qwen3.5-27b-ud-q4-xl-1-instruct-reasoning
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL_1.gguf
   name: Qwen3.5-27B (UD-Q4 XL) 更新版 (指令-推理)
   type: language-model
   category: Qwen
@@ -1441,7 +1452,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1464,7 +1476,7 @@ models:
 #   - gpu_layers=99 (GPU 层数，-ngl)
 # ----------------------------------------
 - id: qwen3.5-27b-ud-q4-xl-1-thinking-general
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL_1.gguf
   name: Qwen3.5-27B (UD-Q4 XL) 更新版 (思考-通用)
   type: reasoning-model
   category: Qwen
@@ -1487,7 +1499,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1510,7 +1523,7 @@ models:
 #   - gpu_layers=99 (GPU 层数，-ngl)
 # ----------------------------------------
 - id: qwen3.5-27b-ud-q4-xl-1-thinking-coding
-  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL.gguf
+  path: language-models/Qwen3.5/Qwen3.5-27B-UD-Q4_K_XL_1.gguf
   name: Qwen3.5-27B (UD-Q4 XL) 更新版 (思考-编码)
   type: reasoning-model
   category: Qwen
@@ -1533,7 +1546,8 @@ models:
   presence_penalty: 0.0
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1579,7 +1593,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1625,7 +1640,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1672,7 +1688,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1720,7 +1737,8 @@ models:
   presence_penalty: 1.5
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1768,7 +1786,8 @@ models:
   presence_penalty: 0.0
   repetition_penalty: 1.0
   parallel: 1
-  batch_size: 512
+  batch_size: 2048
+  ubatch_size: 512
   gpu_layers: 99
   cache_type_k: q4_0
   cache_type_v: q4_0
@@ -1893,6 +1912,7 @@ models:
   description: Qwen3.5-35B-A3B (UD-Q4 XL) 推理任务指令模式 (temp=1.0, top_p=0.95, presence_penalty=1.5)
   # --- 运行参数 ---
   backend: llama
+  port: 39521
   max_context: 262144
   default_temp: 1.0
   default_top_p: 0.95
@@ -3278,7 +3298,7 @@ models:
   description: HY MT1.5 小型翻译模型，高并发处理
   # --- 运行参数 ---
   backend: llama
-  max_context: 32768
+  max_context: 8192
   default_temp: 0.7
   default_top_p: 0.8
   default_top_k: 20
@@ -3314,7 +3334,7 @@ models:
   description: HY MT1.5 中型翻译模型，高并发处理
   # --- 运行参数 ---
   backend: llama
-  max_context: 32768
+  max_context: 8192
   default_temp: 0.7
   default_top_p: 0.8
   default_top_k: 20
