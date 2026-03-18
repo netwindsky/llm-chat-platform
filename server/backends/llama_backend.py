@@ -15,6 +15,7 @@ from ..core.backend import (
     ChatChunk,
     ModelStatus
 )
+from ..utils.http_client import HttpClient
 
 
 def parse_tool_calls(content: str) -> Optional[List[Dict[str, Any]]]:
@@ -97,6 +98,13 @@ class LlamaBackend(InferenceBackend):
         return os.path.exists(server_path)
     
     @property
+    def is_running(self) -> bool:
+        """检查进程是否还在运行"""
+        if self._process is None:
+            return False
+        return self._process.poll() is None
+    
+    @property
     def name(self) -> str:
         return "llama"
     
@@ -173,7 +181,6 @@ class LlamaBackend(InferenceBackend):
                 if mmproj_path and os.path.exists(mmproj_path):
                     mmproj_rel = to_relative(mmproj_path)
                     cmd.extend(["--mmproj", mmproj_rel])
-                    # print(f"[DEBUG] Enabling vision mode with mmproj: {mmproj_rel}")
                 else:
                     print(f"[WARNING] Vision model without mmproj: {model_config.get('id', 'unknown')}")
             
@@ -220,11 +227,21 @@ class LlamaBackend(InferenceBackend):
             )
             # print(f"initialize: _model_info set, status={self._model_info.status}")
             
-            # 创建后台任务等待服务器启动
-            asyncio.create_task(self._wait_and_set_status())
-            
-            # 立即返回 True（模型状态为 loading）
-            return True
+            # 等待服务器启动（最多等待 300 秒）
+            try:
+                await self._wait_for_server(300)
+                if self._model_info:
+                    self._model_info.status = ModelStatus.LOADED
+                print(f"initialize: server ready for {model_config.get('id', 'unknown')}")
+                return True
+            except Exception as e:
+                print(f"initialize: server failed to start: {e}")
+                if self._process:
+                    self._process.terminate()
+                    self._process = None
+                if self._model_info:
+                    self._model_info.status = ModelStatus.ERROR
+                return False
     
     async def _read_process_output(self):
         """读取 llama-server 的输出（不打印）"""
@@ -303,17 +320,20 @@ class LlamaBackend(InferenceBackend):
             if self._model_info:
                 self._model_info.status = ModelStatus.ERROR
     
-    async def _wait_for_server(self, timeout: int = 120) -> bool:
+    async def _wait_for_server(self, timeout: int = 300) -> bool:
         """等待服务器启动并加载模型完成"""
-        import httpx
-        
         # print(f"_wait_for_server: waiting for {self._server_url} (timeout={timeout}s)")
         start_time = datetime.now()
         server_started = False
         
         while (datetime.now() - start_time).seconds < timeout:
+            # 检查进程是否还在运行
+            if self._process and self._process.poll() is not None:
+                print(f"_wait_for_server: process exited with code {self._process.returncode}")
+                raise RuntimeError(f"llama-server process exited with code {self._process.returncode}")
+            
             try:
-                async with httpx.AsyncClient() as client:
+                async with HttpClient.create_client() as client:
                     # 先检查健康端点
                     health_response = await client.get(f"{self._server_url}/health", timeout=2.0)
                     if health_response.status_code == 200:
@@ -354,9 +374,7 @@ class LlamaBackend(InferenceBackend):
         config: Dict[str, Any]
     ) -> AsyncGenerator[str, None]:
         """流式生成"""
-        import httpx
-        
-        async with httpx.AsyncClient() as client:
+        async with HttpClient.create_client() as client:
             payload = {
                 "prompt": prompt,
                 "temperature": config.get("temperature", 0.7),
@@ -394,8 +412,11 @@ class LlamaBackend(InferenceBackend):
         config: Dict[str, Any]
     ) -> ChatResponse:
         """对话生成（非流式）"""
-        import httpx
         from time import time
+        
+        # 检查进程是否在运行
+        if not self.is_running:
+            raise RuntimeError("llama-server process is not running")
         
         start_time = time()
         
@@ -461,12 +482,11 @@ class LlamaBackend(InferenceBackend):
         
         for attempt in range(max_retries):
             try:
-                async with httpx.AsyncClient() as client:
+                async with HttpClient.create_client(timeout=300.0) as client:
                     # print(f"llama_backend.chat: sending request to {self._server_url}/v1/chat/completions")
                     response = await client.post(
                         f"{self._server_url}/v1/chat/completions",
-                        json=payload,
-                        timeout=300.0
+                        json=payload
                     )
                     # print(f"llama_backend.chat: response status={response.status_code}, content={response.text[:200]}")
                     result = response.json()
@@ -511,8 +531,11 @@ class LlamaBackend(InferenceBackend):
         config: Dict[str, Any]
     ) -> AsyncGenerator[ChatChunk, None]:
         """流式对话 - 直接透传 llama-server 的响应"""
-        import httpx
         from time import time
+        
+        # 检查进程是否在运行
+        if not self.is_running:
+            raise RuntimeError("llama-server process is not running")
         
         start_time = time()
         
@@ -549,13 +572,18 @@ class LlamaBackend(InferenceBackend):
             payload["chat_template_kwargs"] = {"enable_thinking": config["enable_thinking"]}
         
         # 直接透传 llama-server 的响应
-        async with httpx.AsyncClient() as client:
+        async with HttpClient.create_stream_client(timeout=180.0) as client:
             async with client.stream(
                 "POST",
                 f"{self._server_url}/v1/chat/completions",
-                json=payload,
-                timeout=180.0
+                json=payload
             ) as response:
+                # 检查响应状态码
+                if response.status_code != 200:
+                    error_text = await response.aread()
+                    print(f"[llama_backend] llama-server returned {response.status_code}: {error_text}")
+                    raise RuntimeError(f"llama-server returned {response.status_code}: {error_text.decode('utf-8', errors='ignore')}")
+                
                 async for line in response.aiter_lines():
                     if line.startswith("data: "):
                         data = line[6:]
@@ -578,7 +606,7 @@ class LlamaBackend(InferenceBackend):
                                 usage=chunk_data.get("usage")
                             )
                         except Exception as e:
-                            # print(f"Error processing chunk: {e}")
+                            print(f"[llama_backend] Error parsing chunk: {e}, data: {data[:200]}")
                             pass
     
     async def get_model_info(self) -> Optional[ModelInfo]:
