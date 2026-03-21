@@ -2,8 +2,12 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel
+import uuid
 
 router = APIRouter(prefix="/chat", tags=["聊天接口"])
+
+# 导入推理监控器
+from ...services.inference_monitor import get_inference_monitor
 
 
 class ImageUrl(BaseModel):
@@ -53,7 +57,7 @@ class ChatResponse(BaseModel):
     created: int
     model: str
     choices: List[Dict[str, Any]]
-    usage: Dict[str, int]
+    usage: Optional[Dict[str, int]] = None
 
 
 _backend_manager = None
@@ -200,10 +204,25 @@ async def chat_completions(request: ChatRequest):
         if request.stream:
             print(f"Starting stream for model={request.model}")
             
+            # 生成请求ID并记录开始
+            stream_request_id = str(uuid.uuid4())
+            monitor = get_inference_monitor()
+            
+            # 估算输入token数量
+            input_text = json.dumps(messages)
+            estimated_input_tokens = len(input_text) // 4
+            
+            await monitor.start_request(stream_request_id, request.model, estimated_input_tokens)
+            
             async def generate():
+                output_tokens = 0
                 try:
                     async for chunk in backend_manager.chat_stream(request.model, messages, config):
                         delta = chunk.choices[0].get("delta", {}) if chunk.choices else {}
+                        
+                        # 统计输出token（简单估算：每个字符约0.25个token）
+                        if delta.get("content"):
+                            output_tokens += max(1, len(delta["content"]) // 4)
                         
                         chunk_data = {
                             "id": chunk.id,
@@ -219,11 +238,18 @@ async def chat_completions(request: ChatRequest):
                         
                         if chunk.usage and chunk.usage.get("total_tokens", 0) > 0:
                             chunk_data["usage"] = chunk.usage
+                            # 使用实际的completion_tokens
+                            output_tokens = chunk.usage.get("completion_tokens", output_tokens)
                         
                         yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
+                    
+                    # 记录请求完成
+                    await monitor.end_request(stream_request_id, output_tokens, status="completed")
                     yield "data: [DONE]\n\n"
                 except Exception as e:
                     print(f"Stream error: {e}")
+                    # 记录请求失败
+                    await monitor.end_request(stream_request_id, output_tokens, status="failed", error_message=str(e))
                     error_data = {"error": str(e)}
                     yield f"data: {json.dumps(error_data)}\n\n"
             
@@ -239,16 +265,50 @@ async def chat_completions(request: ChatRequest):
         
         # 非流式响应
         print(f"Calling backend_manager.chat with model={request.model}")
-        response = await backend_manager.chat(request.model, messages, config)
-        print(f"Got response from backend: {response.id}")
         
-        return ChatResponse(
-            id=response.id,
-            created=response.created,
-            model=response.model,
-            choices=response.choices,
-            usage=response.usage
-        )
+        # 生成请求ID并记录开始
+        request_id = str(uuid.uuid4())
+        monitor = get_inference_monitor()
+        
+        # 估算输入token数量（简单估算：每4个字符约1个token）
+        input_text = json.dumps(messages)
+        estimated_input_tokens = len(input_text) // 4
+        
+        await monitor.start_request(request_id, request.model, estimated_input_tokens)
+        
+        try:
+            response = await backend_manager.chat(request.model, messages, config)
+            print(f"Got response from backend: {response.id}")
+            
+            # 获取输出token数量
+            output_tokens = 0
+            if response.usage:
+                output_tokens = response.usage.get("completion_tokens", 0)
+                if output_tokens == 0:
+                    # 如果没有completion_tokens，尝试从content估算
+                    if response.choices and len(response.choices) > 0:
+                        content = response.choices[0].get("message", {}).get("content", "")
+                        output_tokens = len(content) // 4
+            else:
+                # 从content估算
+                if response.choices and len(response.choices) > 0:
+                    content = response.choices[0].get("message", {}).get("content", "")
+                    output_tokens = len(content) // 4
+            
+            # 记录请求完成
+            await monitor.end_request(request_id, output_tokens, status="completed")
+            
+            return ChatResponse(
+                id=response.id,
+                created=response.created,
+                model=response.model,
+                choices=response.choices,
+                usage=response.usage
+            )
+        except Exception as e:
+            # 记录请求失败
+            await monitor.end_request(request_id, 0, status="failed", error_message=str(e))
+            raise
         
     except Exception as e:
         print(f"Error in chat_completions: {e}")

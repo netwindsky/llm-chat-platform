@@ -13,7 +13,7 @@ import uvicorn
 
 from server.core.manager import ModelManager
 from server.services.backend_manager import BackendManager
-from server.api.v1 import models, chat, openai, logs, anthropic
+from server.api.v1 import models, chat, openai, logs, anthropic, admin
 from server.middleware.logging import RequestLoggingMiddleware
 
 
@@ -66,6 +66,10 @@ async def lifespan(app: FastAPI):
     chat.set_model_manager(model_manager)
     openai.set_managers(backend_manager, model_manager)
     
+    # 注入到管理API
+    from server.services.idle_monitor import get_idle_monitor
+    admin.set_managers(model_manager, backend_manager, get_idle_monitor())
+    
     print("LLM Platform initialized successfully!")
     
     yield
@@ -100,6 +104,7 @@ app.add_middleware(
 app.include_router(models.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
 app.include_router(logs.router, prefix="/api/v1")
+app.include_router(admin.router, prefix="/api/v1")
 # OpenAI 兼容路由 (标准 /v1 路径)
 app.include_router(openai.router, prefix="/v1")
 # Anthropic 兼容路由 (标准 /v1 路径)

@@ -80,8 +80,15 @@
         </div>
       </div>
 
-      <!-- 底部设置 -->
+      <!-- 底部导航 -->
       <div class="sidebar-footer">
+        <button
+          class="footer-btn"
+          @click="$router.push('/admin')"
+        >
+          <el-icon><Monitor /></el-icon>
+          <span>系统管理</span>
+        </button>
         <button
           class="footer-btn"
           @click="$router.push('/settings')"
@@ -590,7 +597,7 @@ import {
   ArrowDown, ArrowUp, Delete, ChatDotRound, Edit, Lightning,
   DataAnalysis, User, View, ArrowDown as ArrowDownIcon,
   Tools, CopyDocument, Refresh, Paperclip, Promotion,
-  Loading, Document, Timer, Odometer, Switch, More
+  Loading, Document, Timer, Odometer, Switch, More, Monitor
 } from '@element-plus/icons-vue'
 
 // 注册虚拟滚动组件

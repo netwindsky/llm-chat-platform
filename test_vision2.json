@@ -1,0 +1,13 @@
+{
+  "model": "qwen3.5-27b-vl-instruct-general",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {"type": "text", "text": "这是什么？"},
+        {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="}}
+      ]
+    }
+  ],
+  "max_tokens": 100
+}

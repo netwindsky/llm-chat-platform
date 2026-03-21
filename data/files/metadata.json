@@ -1,0 +1,35 @@
+{
+  "file-4ef389bba6fe4cd1b2036bab8f883ea9": {
+    "id": "file-4ef389bba6fe4cd1b2036bab8f883ea9",
+    "object": "file",
+    "bytes": 52,
+    "created_at": 1773842124,
+    "filename": "test.jsonl",
+    "purpose": "batch",
+    "content_type": "application/json",
+    "status": "processed",
+    "status_details": null
+  },
+  "file-1879a14900a34b92b949da83d8135cc0": {
+    "id": "file-1879a14900a34b92b949da83d8135cc0",
+    "object": "file",
+    "bytes": 54,
+    "created_at": 1773842675,
+    "filename": "test.txt",
+    "purpose": "fine-tune",
+    "content_type": "text/plain",
+    "status": "processed",
+    "status_details": null
+  },
+  "file-63f6bc43a1814ad58b7285e09af8efec": {
+    "id": "file-63f6bc43a1814ad58b7285e09af8efec",
+    "object": "file",
+    "bytes": 52,
+    "created_at": 1773842685,
+    "filename": "test.jsonl",
+    "purpose": "batch",
+    "content_type": "application/json",
+    "status": "processed",
+    "status_details": null
+  }
+}

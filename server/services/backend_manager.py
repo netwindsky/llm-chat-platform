@@ -35,10 +35,17 @@ class BackendManager:
         # 获取新模型的 max_context
         new_max_context = model_config.get("max_context", 32768)
         
-        # 先检查是否已加载（不需要锁）
+        # 先检查是否已加载且进程仍在运行
         if model_id in self._loaded_models:
-            print(f"load_model: already loaded {model_id}")
-            return True
+            backend = self._loaded_models[model_id]
+            if hasattr(backend, 'is_running') and backend.is_running:
+                print(f"load_model: already loaded and running {model_id}")
+                return True
+            else:
+                print(f"load_model: model {model_id} in dict but process not running, cleaning up")
+                del self._loaded_models[model_id]
+                if self._current_model == model_id:
+                    self._current_model = None
         
         # 先确定需要卸载哪些模型（在锁内）
         async with self._lock:
@@ -152,12 +159,29 @@ class BackendManager:
         
         backend = self._loaded_models[model_id]
         
+        # 检查进程是否在运行
+        if hasattr(backend, 'is_running') and not backend.is_running:
+            print(f"chat: process not running for {model_id}, removing from loaded models")
+            del self._loaded_models[model_id]
+            if self._current_model == model_id:
+                self._current_model = None
+            raise ValueError(f"Model process not running: {model_id}")
+        
         # 更新空闲监控的最后请求时间
         if hasattr(backend, 'port'):
             self._idle_monitor.update_request_time(backend.port)
         
-        result = await backend.chat(messages, config)
-        return result
+        try:
+            result = await backend.chat(messages, config)
+            return result
+        except Exception as e:
+            # 如果调用失败，检查进程是否还在运行
+            if hasattr(backend, 'is_running') and not backend.is_running:
+                print(f"chat: process crashed for {model_id}, removing from loaded models")
+                del self._loaded_models[model_id]
+                if self._current_model == model_id:
+                    self._current_model = None
+            raise
     
     async def chat_stream(self, model_id: str, messages: List[ChatMessage], config: Dict[str, Any]):
         """流式对话生成"""
@@ -166,19 +190,46 @@ class BackendManager:
         
         backend = self._loaded_models[model_id]
         
+        # 检查进程是否在运行
+        if hasattr(backend, 'is_running') and not backend.is_running:
+            print(f"chat_stream: process not running for {model_id}, removing from loaded models")
+            del self._loaded_models[model_id]
+            if self._current_model == model_id:
+                self._current_model = None
+            raise ValueError(f"Model process not running: {model_id}")
+        
         # 更新空闲监控的最后请求时间
         if hasattr(backend, 'port'):
             self._idle_monitor.update_request_time(backend.port)
         
-        async for chunk in backend.chat_stream(messages, config):
-            yield chunk
+        try:
+            async for chunk in backend.chat_stream(messages, config):
+                yield chunk
+        except Exception as e:
+            # 如果调用失败，检查进程是否还在运行
+            if hasattr(backend, 'is_running') and not backend.is_running:
+                print(f"chat_stream: process crashed for {model_id}, removing from loaded models")
+                del self._loaded_models[model_id]
+                if self._current_model == model_id:
+                    self._current_model = None
+            raise
     
     def get_loaded_models(self) -> List[str]:
-        """获取已加载的模型列表"""
-        return list(self._loaded_models.keys())
+        """获取已加载的模型列表（只返回进程仍在运行的模型）"""
+        running_models = []
+        for model_id, backend in self._loaded_models.items():
+            if hasattr(backend, 'is_running') and backend.is_running:
+                running_models.append(model_id)
+            elif not hasattr(backend, 'is_running'):
+                running_models.append(model_id)
+        return running_models
     
     def get_current_model(self) -> Optional[str]:
-        """获取当前模型"""
+        """获取当前模型（只返回进程仍在运行的模型）"""
+        if self._current_model and self._current_model in self._loaded_models:
+            backend = self._loaded_models[self._current_model]
+            if hasattr(backend, 'is_running') and not backend.is_running:
+                return None
         return self._current_model
     
     async def set_current_model(self, model_id: str) -> bool:

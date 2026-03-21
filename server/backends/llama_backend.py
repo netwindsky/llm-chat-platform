@@ -138,7 +138,12 @@ class LlamaBackend(InferenceBackend):
             model_path_rel = to_relative(model_path)
             
             ctx_size = model_config.get("max_context", 32768)
-            ngl = model_config.get("gpu_layers", 99)
+            ngl = model_config.get("ngl") or model_config.get("gpu_layers", 99)
+            ncmoe = model_config.get("ncmoe")
+            threads = model_config.get("threads")
+            cpu_range = model_config.get("cpu_range")
+            print(f"[DEBUG] model_config keys: {list(model_config.keys())}")
+            print(f"[DEBUG] ncmoe={ncmoe}, threads={threads}, cpu_range={cpu_range}")
             parallel = model_config.get("parallel", 1)
             batch_size = model_config.get("batch_size", 2048)
             ubatch_size = model_config.get("ubatch_size") or batch_size
@@ -158,6 +163,19 @@ class LlamaBackend(InferenceBackend):
                 "-fa", "on",
                 "--cont-batching"
             ]
+            
+            # 添加 MoE 专家层参数
+            if ncmoe is not None:
+                cmd.extend(["-ncmoe", str(ncmoe)])
+                print(f"[DEBUG] Added -ncmoe {ncmoe}")
+            
+            # 添加线程和 CPU 范围参数
+            if threads is not None:
+                cmd.extend(["-t", str(threads)])
+                print(f"[DEBUG] Added -t {threads}")
+            if cpu_range is not None:
+                cmd.extend(["--cpu-range", str(cpu_range)])
+                print(f"[DEBUG] Added --cpu-range {cpu_range}")
             
             # 添加 KV Cache 量化参数
             cache_type_k = model_config.get("cache_type_k")
@@ -490,7 +508,13 @@ class LlamaBackend(InferenceBackend):
                     )
                     # print(f"llama_backend.chat: response status={response.status_code}, content={response.text[:200]}")
                     result = response.json()
-                    
+
+                    # 检查HTTP状态码
+                    if response.status_code != 200:
+                        error_msg = result.get('error', {}).get('message', result.get('error', str(result)))
+                        print(f"[LLAMA] HTTP {response.status_code}: {error_msg}")
+                        raise Exception(f"llama-server returned HTTP {response.status_code}: {error_msg}")
+
                     # 检查是否是 503 错误（模型加载中）
                     if 'error' in result and result['error'].get('code') == 503:
                         if attempt < max_retries - 1:

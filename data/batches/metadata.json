@@ -1,0 +1,86 @@
+{
+  "batch-e21de4a3d2e5438db862612ec4af66d7": {
+    "id": "batch-e21de4a3d2e5438db862612ec4af66d7",
+    "object": "batch",
+    "endpoint": "/v1/chat/completions",
+    "errors": null,
+    "input_file_id": "file-03155647d0da4defb8aa79a0fa472a64",
+    "completion_window": "24h",
+    "status": "cancelling",
+    "output_file_id": null,
+    "error_file_id": null,
+    "created_at": 1773841869,
+    "in_progress_at": null,
+    "expires_at": 1773928269,
+    "finalizing_at": null,
+    "completed_at": null,
+    "failed_at": null,
+    "expired_at": null,
+    "cancelling_at": 1773841874,
+    "cancelled_at": 1773841874,
+    "request_counts": {
+      "total": 0,
+      "completed": 0,
+      "failed": 0
+    },
+    "metadata": {
+      "test": "true"
+    }
+  },
+  "batch-ed59c1b575b347a8a063f6ad439078fd": {
+    "id": "batch-ed59c1b575b347a8a063f6ad439078fd",
+    "object": "batch",
+    "endpoint": "/v1/chat/completions",
+    "errors": null,
+    "input_file_id": "file-4ef389bba6fe4cd1b2036bab8f883ea9",
+    "completion_window": "24h",
+    "status": "cancelling",
+    "output_file_id": null,
+    "error_file_id": null,
+    "created_at": 1773842126,
+    "in_progress_at": null,
+    "expires_at": 1773928526,
+    "finalizing_at": null,
+    "completed_at": null,
+    "failed_at": null,
+    "expired_at": null,
+    "cancelling_at": 1773842130,
+    "cancelled_at": 1773842130,
+    "request_counts": {
+      "total": 0,
+      "completed": 0,
+      "failed": 0
+    },
+    "metadata": {
+      "test": "true"
+    }
+  },
+  "batch-4e2d16ded8e5465488fd42396e94615a": {
+    "id": "batch-4e2d16ded8e5465488fd42396e94615a",
+    "object": "batch",
+    "endpoint": "/v1/chat/completions",
+    "errors": null,
+    "input_file_id": "file-63f6bc43a1814ad58b7285e09af8efec",
+    "completion_window": "24h",
+    "status": "cancelling",
+    "output_file_id": null,
+    "error_file_id": null,
+    "created_at": 1773842687,
+    "in_progress_at": null,
+    "expires_at": 1773929087,
+    "finalizing_at": null,
+    "completed_at": null,
+    "failed_at": null,
+    "expired_at": null,
+    "cancelling_at": 1773842691,
+    "cancelled_at": 1773842691,
+    "request_counts": {
+      "total": 0,
+      "completed": 0,
+      "failed": 0
+    },
+    "metadata": {
+      "test": "true"
+    }
+  }
+}

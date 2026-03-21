@@ -31,6 +31,9 @@ class ModelConfig:
     batch_size: int = 2048
     ubatch_size: Optional[int] = None
     gpu_layers: int = 99
+    ncmoe: Optional[int] = None
+    threads: Optional[int] = None
+    cpu_range: Optional[str] = None
     cache_type_k: Optional[str] = None
     cache_type_v: Optional[str] = None
     tags: List[str] = field(default_factory=list)
@@ -108,6 +111,9 @@ class ModelManager:
                 batch_size=m.get('batch_size', 512),
                 ubatch_size=m.get('ubatch_size'),
                 gpu_layers=m.get('gpu_layers', 99),
+                ncmoe=m.get('ncmoe'),
+                threads=m.get('threads'),
+                cpu_range=m.get('cpu_range'),
                 cache_type_k=m.get('cache_type_k'),
                 cache_type_v=m.get('cache_type_v'),
                 tags=m.get('tags', []),

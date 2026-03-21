@@ -1,0 +1,76 @@
+{
+  "assistants": {},
+  "threads": {
+    "thread-6b90bea98d914ebfbab78b325fdd01fa": {
+      "id": "thread-6b90bea98d914ebfbab78b325fdd01fa",
+      "object": "thread",
+      "created_at": 1773842701,
+      "metadata": {}
+    }
+  },
+  "messages": {
+    "thread-6b90bea98d914ebfbab78b325fdd01fa": [
+      {
+        "id": "msg-8c2772b2f8d041f49848012658da1e94",
+        "object": "thread.message",
+        "created_at": 1773842701,
+        "thread_id": "thread-6b90bea98d914ebfbab78b325fdd01fa",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": {
+              "value": "你好",
+              "annotations": []
+            }
+          }
+        ],
+        "metadata": {},
+        "assistant_id": null,
+        "run_id": null,
+        "file_ids": []
+      },
+      {
+        "id": "msg-b74f9c701c5f44959df9cb41103ab183",
+        "object": "thread.message",
+        "created_at": 1773842703,
+        "thread_id": "thread-6b90bea98d914ebfbab78b325fdd01fa",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": {
+              "value": "你好，请问你能做什么？",
+              "annotations": []
+            }
+          }
+        ],
+        "metadata": {},
+        "assistant_id": null,
+        "run_id": null,
+        "file_ids": []
+      }
+    ]
+  },
+  "runs": {
+    "run-f8d9be069bfe4a119f0680c98aa0d424": {
+      "id": "run-f8d9be069bfe4a119f0680c98aa0d424",
+      "object": "thread.run",
+      "created_at": 1773842707,
+      "assistant_id": "asst-5f0e2b812c2f4eabaa0e0cb8062d8e27",
+      "thread_id": "thread-6b90bea98d914ebfbab78b325fdd01fa",
+      "status": "cancelled",
+      "instructions": "请回答用户的问题",
+      "additional_instructions": null,
+      "tools": [],
+      "metadata": {},
+      "last_error": null,
+      "expires_at": 1773846307,
+      "started_at": null,
+      "completed_at": null,
+      "cancelled_at": 1773842711,
+      "failed_at": null,
+      "required_action": null
+    }
+  }
+}

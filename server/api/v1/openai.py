@@ -1,14 +1,25 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi.responses import StreamingResponse, JSONResponse
 from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel
 import json
+import uuid
 from time import time
 
 from ...backends.embedding_backend import (
     get_embeddings, initialize_embedding_backend,
     get_embedding_manager
 )
+
+# 导入推理监控器
+from ...services.inference_monitor import get_inference_monitor
+
+# 导入文件存储和批处理管理
+from ...services.file_storage import get_file_storage
+from ...services.batch_manager import get_batch_manager
+
+# 导入 Assistant 管理
+from ...services.assistant_manager import get_assistant_manager
 
 router = APIRouter(tags=["OpenAI 兼容接口"])
 
@@ -331,9 +342,20 @@ async def chat_completions(request: ChatRequest):
                 print(f"[OpenAI] Model not loaded: {request.model}")
                 raise HTTPException(status_code=503, detail=f"Model not loaded: {request.model}")
 
+            # 生成请求 ID 并记录开始
+            stream_request_id = str(uuid.uuid4())
+            monitor = get_inference_monitor()
+            
+            # 估算输入 token 数量
+            input_text = json.dumps(messages)
+            estimated_input_tokens = len(input_text) // 4
+            
+            await monitor.start_request(stream_request_id, request.model, estimated_input_tokens)
+
             async def generate():
                 chunk_count = 0
                 stream_start_time = time()
+                output_tokens = 0
                 try:
                     print(f"[OpenAI] Calling chat_stream for model: {request.model}")
                     async for chunk in _backend_manager.chat_stream(request.model, messages, config):
@@ -341,6 +363,11 @@ async def chat_completions(request: ChatRequest):
                         # 调试：打印 chunk.choices
                         if chunk_count <= 10:
                             print(f"[OpenAI] Chunk {chunk_count}: choices type={type(chunk.choices)}, value={chunk.choices}")
+                        
+                        # 统计输出token（简单估算：每个字符约0.25个token）
+                        delta = chunk.choices[0].get("delta", {}) if chunk.choices else {}
+                        if delta.get("content"):
+                            output_tokens += max(1, len(delta["content"]) // 4)
                         
                         # 直接透传 llama-server 的 chunk 数据
                         chunk_data = {
@@ -353,16 +380,31 @@ async def chat_completions(request: ChatRequest):
                         # 如果有 usage，也透传
                         if chunk.usage:
                             chunk_data["usage"] = chunk.usage
+                            # 使用实际的completion_tokens
+                            output_tokens = chunk.usage.get("completion_tokens", output_tokens)
                         yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
+                    
+                    # 记录请求完成
+                    await monitor.end_request(stream_request_id, output_tokens, status="completed")
                     stream_duration = time() - stream_start_time
                     print(f"[OpenAI] Stream completed: {chunk_count} chunks sent in {stream_duration:.2f}s")
                     yield "data: [DONE]\n\n"
                 except Exception as e:
+                    # 记录请求失败
+                    await monitor.end_request(stream_request_id, output_tokens, status="failed", error_message=str(e))
                     stream_duration = time() - stream_start_time
                     print(f"[OpenAI] Stream error after {stream_duration:.2f}s: {e}")
                     import traceback
                     traceback.print_exc()
-                    error_data = {"error": {"message": str(e), "type": "internal_error"}}
+                    
+                    # 如果是进程崩溃，尝试重新加载
+                    error_msg = str(e)
+                    if "process not running" in error_msg or "Model not loaded" in error_msg:
+                        print(f"[OpenAI] Process crashed, cleaning up and will reload on next request")
+                        # 清理状态，下次请求会自动重新加载
+                        error_data = {"error": {"message": "Model process crashed, will reload on next request", "type": "service_unavailable", "code": 503}}
+                    else:
+                        error_data = {"error": {"message": error_msg, "type": "internal_error"}}
                     yield f"data: {json.dumps(error_data)}\n\n"
             
             return StreamingResponse(
@@ -375,16 +417,54 @@ async def chat_completions(request: ChatRequest):
                 }
             )
         
-        response = await _backend_manager.chat(request.model, messages, config)
+        # 生成请求ID并记录开始
+        request_id = str(uuid.uuid4())
+        monitor = get_inference_monitor()
         
-        # 直接透传 llama-server 的响应，保持原始数据结构
-        return ChatResponse(
-            id=response.id,
-            created=response.created,
-            model=response.model,
-            choices=response.choices,
-            usage=response.usage
-        )
+        # 估算输入token数量（简单估算：每4个字符约1个token）
+        input_text = json.dumps(messages)
+        estimated_input_tokens = len(input_text) // 4
+        
+        await monitor.start_request(request_id, request.model, estimated_input_tokens)
+        
+        try:
+            response = await _backend_manager.chat(request.model, messages, config)
+            
+            # 获取输出 token 数量
+            output_tokens = 0
+            if response.usage:
+                output_tokens = response.usage.get("completion_tokens", 0)
+                if output_tokens == 0:
+                    # 如果没有 completion_tokens，尝试从 content 估算
+                    if response.choices and len(response.choices) > 0:
+                        content = response.choices[0].get("message", {}).get("content", "")
+                        output_tokens = len(content) // 4
+            else:
+                # 从 content 估算
+                if response.choices and len(response.choices) > 0:
+                    content = response.choices[0].get("message", {}).get("content", "")
+                    output_tokens = len(content) // 4
+            
+            # 记录请求完成
+            await monitor.end_request(request_id, output_tokens, status="completed")
+            
+            # 直接透传 llama-server 的响应，保持原始数据结构
+            return ChatResponse(
+                id=response.id,
+                created=response.created,
+                model=response.model,
+                choices=response.choices,
+                usage=response.usage
+            )
+        except Exception as e:
+            # 记录请求失败
+            await monitor.end_request(request_id, 0, status="failed", error_message=str(e))
+            
+            # 如果是进程崩溃，清理状态
+            error_msg = str(e)
+            if "process not running" in error_msg or "Model not loaded" in error_msg:
+                print(f"[OpenAI] Process crashed, cleaning up and will reload on next request")
+            raise
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -672,36 +752,78 @@ class FilesListResponse(BaseModel):
 async def list_files(purpose: Optional[str] = None):
     """OpenAI 兼容的文件列表接口"""
     print(f"[OpenAI] List files API called, purpose={purpose}")
-
-    # 返回空列表
-    return FilesListResponse(data=[])
+    
+    file_storage = get_file_storage()
+    files = file_storage.list_files(purpose=purpose)
+    
+    return FilesListResponse(data=files)
 
 
 @router.post("/files")
-async def upload_file():
+async def upload_file(
+    file: UploadFile = File(...),
+    purpose: str = Form(...)
+):
     """OpenAI 兼容的文件上传接口"""
-    print(f"[OpenAI] Upload file API called")
-
-    raise HTTPException(
-        status_code=501,
-        detail="File upload is not supported yet."
-    )
+    print(f"[OpenAI] Upload file API called: filename={file.filename}, purpose={purpose}")
+    
+    try:
+        # 读取文件内容
+        content = await file.read()
+        
+        # 获取文件类型
+        content_type = file.content_type or "application/octet-stream"
+        
+        # 保存到文件存储
+        file_storage = get_file_storage()
+        file_obj = file_storage.create_file(
+            filename=file.filename,
+            purpose=purpose,
+            content=content,
+            content_type=content_type
+        )
+        
+        print(f"[OpenAI] File uploaded successfully: {file_obj['id']}")
+        return JSONResponse(content=file_obj)
+    
+    except Exception as e:
+        print(f"[OpenAI] Failed to upload file: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to upload file: {str(e)}"
+        )
 
 
 @router.get("/files/{file_id}")
 async def get_file(file_id: str):
     """OpenAI 兼容的文件详情接口"""
     print(f"[OpenAI] Get file API called: {file_id}")
-
-    raise HTTPException(status_code=404, detail=f"File not found: {file_id}")
+    
+    file_storage = get_file_storage()
+    file_obj = file_storage.get_file(file_id)
+    
+    if not file_obj:
+        raise HTTPException(status_code=404, detail=f"File not found: {file_id}")
+    
+    return JSONResponse(content=file_obj)
 
 
 @router.delete("/files/{file_id}")
 async def delete_file(file_id: str):
     """OpenAI 兼容的文件删除接口"""
     print(f"[OpenAI] Delete file API called: {file_id}")
-
-    raise HTTPException(status_code=404, detail=f"File not found: {file_id}")
+    
+    file_storage = get_file_storage()
+    
+    if not file_storage.get_file(file_id):
+        raise HTTPException(status_code=404, detail=f"File not found: {file_id}")
+    
+    success = file_storage.delete_file(file_id)
+    
+    if success:
+        return JSONResponse(content={"deleted": True})
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete file")
 
 
 # ==================== Batch API ====================
@@ -739,33 +861,401 @@ class BatchObject(BaseModel):
 @router.post("/batches")
 async def create_batch(request: BatchRequest):
     """OpenAI 兼容的 Batch 创建接口"""
-    print(f"[OpenAI] Create batch API called: endpoint={request.endpoint}")
-
-    raise HTTPException(
-        status_code=501,
-        detail="Batch API is not supported yet."
+    print(f"[OpenAI] Create batch API called: endpoint={request.endpoint}, input_file={request.input_file_id}")
+    
+    # 验证文件是否存在
+    file_storage = get_file_storage()
+    file_obj = file_storage.get_file(request.input_file_id)
+    
+    if not file_obj:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Input file not found: {request.input_file_id}"
+        )
+    
+    # 创建批处理任务
+    batch_manager = get_batch_manager()
+    batch_obj = batch_manager.create_batch(
+        input_file_id=request.input_file_id,
+        endpoint=request.endpoint,
+        completion_window=request.completion_window,
+        metadata=request.metadata
     )
+    
+    print(f"[OpenAI] Batch created successfully: {batch_obj['id']}")
+    return JSONResponse(content=batch_obj)
 
 
 @router.get("/batches/{batch_id}")
 async def get_batch(batch_id: str):
     """OpenAI 兼容的 Batch 详情接口"""
     print(f"[OpenAI] Get batch API called: {batch_id}")
-
-    raise HTTPException(status_code=404, detail=f"Batch not found: {batch_id}")
+    
+    batch_manager = get_batch_manager()
+    batch_obj = batch_manager.get_batch(batch_id)
+    
+    if not batch_obj:
+        raise HTTPException(status_code=404, detail=f"Batch not found: {batch_id}")
+    
+    return JSONResponse(content=batch_obj)
 
 
 @router.get("/batches")
 async def list_batches(limit: int = 20, after: Optional[str] = None):
     """OpenAI 兼容的 Batch 列表接口"""
-    print(f"[OpenAI] List batches API called")
-
-    return {"object": "list", "data": []}
+    print(f"[OpenAI] List batches API called, limit={limit}")
+    
+    batch_manager = get_batch_manager()
+    batches = batch_manager.list_batches(limit=limit, after=after)
+    
+    return JSONResponse(content={"object": "list", "data": batches})
 
 
 @router.post("/batches/{batch_id}/cancel")
 async def cancel_batch(batch_id: str):
     """OpenAI 兼容的 Batch 取消接口"""
     print(f"[OpenAI] Cancel batch API called: {batch_id}")
+    
+    batch_manager = get_batch_manager()
+    batch_obj = batch_manager.get_batch(batch_id)
+    
+    if not batch_obj:
+        raise HTTPException(status_code=404, detail=f"Batch not found: {batch_id}")
+    
+    # 取消批处理
+    cancelled_batch = batch_manager.cancel_batch(batch_id)
+    
+    return JSONResponse(content=cancelled_batch)
 
-    raise HTTPException(status_code=404, detail=f"Batch not found: {batch_id}")
+
+# ==================== Assistant API ====================
+
+class AssistantRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    model: Optional[str] = None
+    instructions: Optional[str] = None
+    tools: Optional[List[Dict[str, Any]]] = None
+    file_ids: Optional[List[str]] = None
+    metadata: Optional[Dict[str, str]] = None
+
+
+class ThreadRequest(BaseModel):
+    messages: Optional[List[Dict[str, Any]]] = None
+    metadata: Optional[Dict[str, str]] = None
+
+
+class MessageRequest(BaseModel):
+    role: str
+    content: str
+    metadata: Optional[Dict[str, str]] = None
+
+
+class RunRequest(BaseModel):
+    assistant_id: str
+    instructions: Optional[str] = None
+    additional_instructions: Optional[str] = None
+    tools: Optional[List[Dict[str, Any]]] = None
+    metadata: Optional[Dict[str, str]] = None
+
+
+@router.post("/assistants")
+async def create_assistant(request: AssistantRequest):
+    """创建 Assistant"""
+    print(f"[OpenAI] Create assistant API called: name={request.name}")
+    
+    assistant_manager = get_assistant_manager()
+    
+    assistant = assistant_manager.create_assistant(
+        name=request.name or "Assistant",
+        model=request.model or "gpt-4",
+        description=request.description,
+        instructions=request.instructions,
+        tools=request.tools,
+        metadata=request.metadata
+    )
+    
+    return JSONResponse(content=assistant)
+
+
+@router.get("/assistants")
+async def list_assistants(
+    limit: int = 20,
+    order: str = "desc",
+    after: Optional[str] = None,
+    before: Optional[str] = None
+):
+    """列出 Assistants"""
+    print(f"[OpenAI] List assistants API called")
+    
+    assistant_manager = get_assistant_manager()
+    assistants = assistant_manager.list_assistants(
+        limit=limit,
+        order=order,
+        after=after,
+        before=before
+    )
+    
+    return JSONResponse(content={"object": "list", "data": assistants})
+
+
+@router.get("/assistants/{assistant_id}")
+async def get_assistant(assistant_id: str):
+    """获取 Assistant 详情"""
+    print(f"[OpenAI] Get assistant API called: {assistant_id}")
+    
+    assistant_manager = get_assistant_manager()
+    assistant = assistant_manager.get_assistant(assistant_id)
+    
+    if not assistant:
+        raise HTTPException(status_code=404, detail=f"Assistant not found: {assistant_id}")
+    
+    return JSONResponse(content=assistant)
+
+
+@router.post("/assistants/{assistant_id}")
+async def update_assistant(assistant_id: str, request: AssistantRequest):
+    """更新 Assistant"""
+    print(f"[OpenAI] Update assistant API called: {assistant_id}")
+    
+    assistant_manager = get_assistant_manager()
+    
+    # 构建更新数据
+    update_data = {}
+    if request.name is not None:
+        update_data["name"] = request.name
+    if request.model is not None:
+        update_data["model"] = request.model
+    if request.description is not None:
+        update_data["description"] = request.description
+    if request.instructions is not None:
+        update_data["instructions"] = request.instructions
+    if request.tools is not None:
+        update_data["tools"] = request.tools
+    if request.metadata is not None:
+        update_data["metadata"] = request.metadata
+    
+    assistant = assistant_manager.update_assistant(assistant_id, **update_data)
+    
+    if not assistant:
+        raise HTTPException(status_code=404, detail=f"Assistant not found: {assistant_id}")
+    
+    return JSONResponse(content=assistant)
+
+
+@router.delete("/assistants/{assistant_id}")
+async def delete_assistant(assistant_id: str):
+    """删除 Assistant"""
+    print(f"[OpenAI] Delete assistant API called: {assistant_id}")
+    
+    assistant_manager = get_assistant_manager()
+    success = assistant_manager.delete_assistant(assistant_id)
+    
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Assistant not found: {assistant_id}")
+    
+    return JSONResponse(content={"deleted": True, "id": assistant_id, "object": "assistant.deleted"})
+
+
+# ==================== Thread API ====================
+
+@router.post("/threads")
+async def create_thread(request: ThreadRequest):
+    """创建 Thread"""
+    print(f"[OpenAI] Create thread API called")
+    
+    assistant_manager = get_assistant_manager()
+    
+    thread = assistant_manager.create_thread(
+        messages=request.messages,
+        metadata=request.metadata
+    )
+    
+    return JSONResponse(content=thread)
+
+
+@router.get("/threads/{thread_id}")
+async def get_thread(thread_id: str):
+    """获取 Thread 详情"""
+    print(f"[OpenAI] Get thread API called: {thread_id}")
+    
+    assistant_manager = get_assistant_manager()
+    thread = assistant_manager.get_thread(thread_id)
+    
+    if not thread:
+        raise HTTPException(status_code=404, detail=f"Thread not found: {thread_id}")
+    
+    return JSONResponse(content=thread)
+
+
+@router.post("/threads/{thread_id}")
+async def update_thread(thread_id: str, request: ThreadRequest):
+    """更新 Thread"""
+    print(f"[OpenAI] Update thread API called: {thread_id}")
+    
+    assistant_manager = get_assistant_manager()
+    thread = assistant_manager.update_thread(
+        thread_id=thread_id,
+        metadata=request.metadata
+    )
+    
+    if not thread:
+        raise HTTPException(status_code=404, detail=f"Thread not found: {thread_id}")
+    
+    return JSONResponse(content=thread)
+
+
+@router.delete("/threads/{thread_id}")
+async def delete_thread(thread_id: str):
+    """删除 Thread"""
+    print(f"[OpenAI] Delete thread API called: {thread_id}")
+    
+    assistant_manager = get_assistant_manager()
+    success = assistant_manager.delete_thread(thread_id)
+    
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Thread not found: {thread_id}")
+    
+    return JSONResponse(content={"deleted": True, "id": thread_id, "object": "thread.deleted"})
+
+
+# ==================== Message API ====================
+
+@router.post("/threads/{thread_id}/messages")
+async def create_message(thread_id: str, request: MessageRequest):
+    """创建 Message"""
+    print(f"[OpenAI] Create message API called: thread={thread_id}")
+    
+    assistant_manager = get_assistant_manager()
+    
+    # 验证线程是否存在
+    thread = assistant_manager.get_thread(thread_id)
+    if not thread:
+        raise HTTPException(status_code=404, detail=f"Thread not found: {thread_id}")
+    
+    message = assistant_manager.add_message(
+        thread_id=thread_id,
+        role=request.role,
+        content=request.content,
+        metadata=request.metadata
+    )
+    
+    return JSONResponse(content=message)
+
+
+@router.get("/threads/{thread_id}/messages")
+async def list_messages(
+    thread_id: str,
+    limit: int = 20,
+    order: str = "desc"
+):
+    """列出 Messages"""
+    print(f"[OpenAI] List messages API called: thread={thread_id}")
+    
+    assistant_manager = get_assistant_manager()
+    
+    # 验证线程是否存在
+    thread = assistant_manager.get_thread(thread_id)
+    if not thread:
+        raise HTTPException(status_code=404, detail=f"Thread not found: {thread_id}")
+    
+    messages = assistant_manager.list_messages(
+        thread_id=thread_id,
+        limit=limit,
+        order=order
+    )
+    
+    return JSONResponse(content={"object": "list", "data": messages})
+
+
+@router.get("/threads/{thread_id}/messages/{message_id}")
+async def get_message(thread_id: str, message_id: str):
+    """获取 Message 详情"""
+    print(f"[OpenAI] Get message API called: thread={thread_id}, message={message_id}")
+    
+    assistant_manager = get_assistant_manager()
+    message = assistant_manager.get_message(thread_id, message_id)
+    
+    if not message:
+        raise HTTPException(status_code=404, detail=f"Message not found: {message_id}")
+    
+    return JSONResponse(content=message)
+
+
+# ==================== Run API ====================
+
+@router.post("/threads/{thread_id}/runs")
+async def create_run(thread_id: str, request: RunRequest):
+    """创建 Run"""
+    print(f"[OpenAI] Create run API called: thread={thread_id}")
+    
+    assistant_manager = get_assistant_manager()
+    
+    # 验证线程是否存在
+    thread = assistant_manager.get_thread(thread_id)
+    if not thread:
+        raise HTTPException(status_code=404, detail=f"Thread not found: {thread_id}")
+    
+    run = assistant_manager.create_run(
+        thread_id=thread_id,
+        assistant_id=request.assistant_id,
+        instructions=request.instructions,
+        additional_instructions=request.additional_instructions,
+        tools=request.tools,
+        metadata=request.metadata
+    )
+    
+    return JSONResponse(content=run)
+
+
+@router.get("/threads/{thread_id}/runs")
+async def list_runs(
+    thread_id: str,
+    limit: int = 20
+):
+    """列出 Runs"""
+    print(f"[OpenAI] List runs API called: thread={thread_id}")
+    
+    assistant_manager = get_assistant_manager()
+    
+    # 验证线程是否存在
+    thread = assistant_manager.get_thread(thread_id)
+    if not thread:
+        raise HTTPException(status_code=404, detail=f"Thread not found: {thread_id}")
+    
+    runs = assistant_manager.list_runs(
+        thread_id=thread_id,
+        limit=limit
+    )
+    
+    return JSONResponse(content={"object": "list", "data": runs})
+
+
+@router.get("/threads/{thread_id}/runs/{run_id}")
+async def get_run(thread_id: str, run_id: str):
+    """获取 Run 详情"""
+    print(f"[OpenAI] Get run API called: thread={thread_id}, run={run_id}")
+    
+    assistant_manager = get_assistant_manager()
+    run = assistant_manager.get_run(run_id)
+    
+    if not run or run.get("thread_id") != thread_id:
+        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    
+    return JSONResponse(content=run)
+
+
+@router.post("/threads/{thread_id}/runs/{run_id}/cancel")
+async def cancel_run(thread_id: str, run_id: str):
+    """取消 Run"""
+    print(f"[OpenAI] Cancel run API called: thread={thread_id}, run={run_id}")
+    
+    assistant_manager = get_assistant_manager()
+    run = assistant_manager.get_run(run_id)
+    
+    if not run or run.get("thread_id") != thread_id:
+        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    
+    cancelled_run = assistant_manager.cancel_run(run_id)
+    
+    return JSONResponse(content=cancelled_run)
